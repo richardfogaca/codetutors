@@ -1,12 +1,11 @@
 from flask import Flask
 from app.config import Config
+from flask_login import LoginManager
 
 app = Flask(__name__)
 app.config.from_object(Config)
-
-@app.route('/')
-def main():
-    return 'Hello World!'
+login = LoginManager(app)
+login.login_view = 'login' # connecting the login view function to the login instance
 
 if __name__ == '__main__':
     app.run()

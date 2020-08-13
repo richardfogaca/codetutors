@@ -13,3 +13,4 @@ class Config(object):
         %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+    # TEMPLATES_AUTO_RELOAD=True

@@ -1,6 +1,9 @@
 from datetime import datetime
+from app import login
 from manage import db
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 # Declaring the association table
@@ -9,15 +12,21 @@ tutor_category = db.Table('tutor_category',
     db.Column('category_id', db.Integer, db.ForeignKey('categories.id'), primary_key=True)
 )
 
-class Users(db.Model):
+class Users(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(64), index=True)
-    last_name = db.Column(db.String(64), index=True)
-    email = db.Column(db.String(120), index=True, unique=True)
-    profile_img = db.Column(db.String(120))
-    password_hash = db.Column(db.String(128))
+    first_name = db.Column(db.String(64), index=True, nullable=False)
+    last_name = db.Column(db.String(64), index=True, nullable=False)
+    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
+    profile_img = db.Column(db.String(120), nullable=True)
+    password_hash = db.Column(db.String(128), nullable=False)
     timestamp_joined = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -43,7 +52,7 @@ class Reviews(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def __repr__(self):
-        return '<Review User: {}'.format(self.user_id) + ' Tutor: {}'.format(self.tutor_id) + ' Rating: {}'.format(self.rating)
+        return '<Review User: {}'.format(self.user_id) + ' Tutor: {}'.format(self.tutor_id) + ' Rating: {}>'.format(self.rating)
 
 class Categories(db.Model):
     __tablename__ = 'categories'
@@ -53,4 +62,8 @@ class Categories(db.Model):
     tutor = db.relationship('Tutors', secondary=tutor_category)
 
     def __repr__(self):
-        return '<Catego'
+        return '<Category {}>'.format(self.name)
+
+@login.user_loader
+def load_user(id):
+    return Users.query.get(int(id))
