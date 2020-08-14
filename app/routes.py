@@ -1,13 +1,14 @@
 from flask import render_template, flash, redirect, request, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
-# from werkzeug import secure_filename
 from werkzeug.utils import secure_filename
 from app import app, photos
 from app.models import Users
+from app.utils import expand2square
 from manage import db
 from .forms import LoginForm, RegistrationForm, ImageUploadForm
-import logging, os
+from PIL import Image
+import logging, os, time, hashlib, pathlib
 
 
 @app.route('/')
@@ -54,23 +55,48 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/settings')
+@app.route('/settings', methods=['GET', 'POST'])
 @login_required
-def settings(username):
+def settings():
     """
     Settings page functionalities: include/change profile img and password (initially)
     First I'll add just the users settings, later I will also include Tutors
     """
+    id = current_user.get_id()
     form = ImageUploadForm()
     if form.validate_on_submit():
-        for filename in request.files.getlist('photo'):
+        for filename in request.files.getlist('profile'):
+            # saving the profile image
             str_name = 'admin' + str(int(time.time()))
             name = hashlib.md5(str_name.encode("utf-8")).hexdigest()[:15]
+            file_extension = pathlib.Path(filename.filename).suffix
             photos.save(filename, name=name + '.')
-        success = True
-        flash('Document uploaded successfully.')
-    else:
-        success = False
-      
-    user = User.query.filter_by(email=email).first_or_404()
+
+            # resizing the thumbnail
+            file_url = photos.path(name) + file_extension
+            image = Image.open(file_url)
+            image = expand2square(image, (0, 0, 0)).resize((80, 80), Image.LANCZOS)
+            image.save(file_url, quality=95)
+            
+        flash('Profile image uploaded successfully.')
+
+    user = Users.query.get(id)
     return render_template('settings.html', user=user, form=form)
+
+# @app.route('/manage')
+# def manage_file():
+#     files_list = os.listdir(app.config['UPLOADED_PHOTOS_DEST'])
+#     return render_template('manage.html', files_list=files_list)
+
+
+# @app.route('/open/<filename>')
+# def open_file(filename):
+#     file_url = photos.url(filename)
+#     return render_template('browser.html', file_url=file_url)
+
+
+# @app.route('/delete/<filename>')
+# def delete_file(filename):
+#     file_path = photos.path(filename)
+#     os.remove(file_path)
+#     return redirect(url_for('manage_file'))

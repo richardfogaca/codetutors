@@ -1,9 +1,8 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    User settings page
     <form action="{{ url_for('settings') }}" enctype="multipart/form-data" method="POST">
-
+        {{ form.hidden_tag() }}
         <div class="col-sm-6 form-group">
             <label>Profile Image</label>
             <input type="file" name="profile" class="form-control-file">
