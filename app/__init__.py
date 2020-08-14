@@ -1,11 +1,19 @@
 from flask import Flask
+from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
 from app.config import Config
 from flask_login import LoginManager
+import os
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(os.path.dirname(app.instance_path), 'app/uploads')
+
 login = LoginManager(app)
 login.login_view = 'login' # connecting the login view function to the login instance
+
+photos = UploadSet('photos', IMAGES)
+configure_uploads(app, photos)
+patch_request_class(app)  # set maximum file size, default is 16MB
 
 if __name__ == '__main__':
     app.run()

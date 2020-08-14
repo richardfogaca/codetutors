@@ -13,4 +13,6 @@ class Config(object):
         %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+    MAX_CONTENT_LENGTH = 4 * 1024 * 1024  # 4MB file max-limit.
+    
     # TEMPLATES_AUTO_RELOAD=True
