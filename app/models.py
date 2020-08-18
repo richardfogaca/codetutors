@@ -6,12 +6,6 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
 
-# Declaring the association table
-tutor_category = db.Table('tutor_category',
-    db.Column('tutor_id', db.Integer, db.ForeignKey('tutors.id'), primary_key=True),
-    db.Column('category_id', db.Integer, db.ForeignKey('categories.id'), primary_key=True)
-)
-
 class Users(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -21,17 +15,19 @@ class Users(UserMixin, db.Model):
     profile_img = db.Column(db.String(120), nullable=True)
     password_hash = db.Column(db.String(128), nullable=False)
     timestamp_joined = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    about_me = db.Column(db.String(140), nullable=True)
+    last_seen = db.Column(db.DateTime(140), default=datetime.utcnow)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-    def avatar(self, size):
+    
+    def avatar(self):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
-        return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
-            digest, size)
+        return 'https://www.gravatar.com/avatar/{}?d=identicon'.format(
+        digest)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -43,7 +39,7 @@ class Tutors(db.Model):
     price = db.Column(db.Float)
 
     # Connecting this field to the association table. 
-    category = db.relationship("Categories", secondary=tutor_category)
+    category = db.relationship("Categories", secondary="tutor_category")
 
     def __repr__(self):
         return '<Tutor id {}'.format(self.user_id) + ' , price {}>'.format(self.price)
@@ -64,10 +60,16 @@ class Categories(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True)
     # Connecting this field to the association table. 
-    tutor = db.relationship('Tutors', secondary=tutor_category)
+    tutor = db.relationship('Tutors', secondary="tutor_category")
 
     def __repr__(self):
         return '<Category {}>'.format(self.name)
+
+# Declaring the association table
+tutor_category = db.Table('tutor_category',
+    db.Column('tutor_id', db.Integer, db.ForeignKey('tutors.id'), primary_key=True),
+    db.Column('category_id', db.Integer, db.ForeignKey('categories.id'), primary_key=True)
+)
 
 @login.user_loader
 def load_user(id):

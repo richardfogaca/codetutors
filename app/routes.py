@@ -2,14 +2,22 @@ from flask import render_template, flash, redirect, request, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
+from datetime import datetime
 from app import app, photos
 from app.models import Users
 from app.utils import expand2square
 from manage import db
-from .forms import LoginForm, RegistrationForm, ImageUploadForm
+from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm
 from PIL import Image
 import logging, os, time, hashlib, pathlib
 
+
+# this decorator function is executed before any view function
+@app.before_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
 
 @app.route('/')
 @app.route('/index')
@@ -55,33 +63,53 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/settings', methods=['GET', 'POST'])
+@app.route('/profile/<int:id>', methods=['GET'])
+def profile(id):
+    user = Users.query.get(id)
+    return render_template('profile.html', user=user)
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
-def settings():
+def edit_profile():
     """
-    Settings page functionalities: include/change profile img and password (initially)
-    First I'll add just the users settings, later I will also include Tutors
+    Edit profile page functionalities: include/change profile img, password, about me (initially)
+    First I'll add just the users' functionalities, later I will also include Tutors
     """
     id = current_user.get_id()
-    form = ImageUploadForm()
-    if form.validate_on_submit():
-        for filename in request.files.getlist('profile'):
+    user = Users.query.get(id)
+    profile_form = EditProfileForm()
+    image_form = UploadImageForm()
+    if request.method == 'POST':
+        if image_form.validate_on_submit():
             # saving the profile image
+            filename = image_form.profile_img.data
             str_name = 'admin' + str(int(time.time()))
             name = hashlib.md5(str_name.encode("utf-8")).hexdigest()[:15]
             file_extension = pathlib.Path(filename.filename).suffix
             photos.save(filename, name=name + '.')
 
-            # resizing the thumbnail
+            # resizing the thumbnail image
             file_url = photos.path(name) + file_extension
             image = Image.open(file_url)
-            image = expand2square(image, (0, 0, 0)).resize((80, 80), Image.LANCZOS)
+            image = expand2square(image, (0, 0, 0)).resize((150, 150), Image.LANCZOS)
             image.save(file_url, quality=95)
-            
-        flash('Profile image uploaded successfully.')
 
-    user = Users.query.get(id)
-    return render_template('settings.html', user=user, form=form)
+            # saving the filename into users.profile_img
+            user.profile_img = name + file_extension
+        if profile_form.validate_on_submit() and profile_form.save.data:
+            current_user.about_me = profile_form.about_me.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('profile', id=id))
+    elif request.method == 'GET':
+        profile_form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', user=user, profile_form=profile_form, image_form=image_form)
+
+@app.route('/display/<filename>')
+def display_image(filename):
+	print('display_image filename: ' + filename)
+	return redirect(url_for('static', filename='uploads/' + filename), code=301)
+
 
 # @app.route('/manage')
 # def manage_file():

@@ -7,6 +7,9 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+from manage import db
+
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -20,8 +23,8 @@ logger = logging.getLogger('alembic.env')
 # add your model's MetaData object here
 # for 'autogenerate' support
 
-from app.models import Users, Tutors, Categories, Reviews
-target_metadata = [Users.metadata, Tutors.metadata, Categories.metadata, Reviews.metadata]
+# from app.models import Users, Tutors, Categories, Reviews
+target_metadata = db.metadata
 
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata

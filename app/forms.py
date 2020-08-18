@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 from app.models import Users
 from app import photos
 
@@ -23,8 +23,11 @@ class RegistrationForm(FlaskForm):
         user = Users.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
+
+class UploadImageForm(FlaskForm):
+    profile_img = FileField('Profile Image', validators=[FileRequired(), FileAllowed(photos, 'Images only!')])
+    upload = SubmitField('Upload')
     
-class ImageUploadForm(FlaskForm):
-    # profile = FileField('Profile Image', validators=[FileAllowed(photos, 'Images only!'), FileRequired('Choose a file!')])
-    profile = FileField('Profile Image', validators=[FileAllowed(photos, 'Images only!')])
-    submit = SubmitField('Upload')
+class EditProfileForm(FlaskForm):
+    about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
+    save = SubmitField('Save')
