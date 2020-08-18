@@ -12,7 +12,7 @@ from PIL import Image
 import logging, os, time, hashlib, pathlib
 
 
-# this decorator function is executed before any view function
+# this decorator function is executed before any other  view function
 @app.before_request
 def before_request():
     if current_user.is_authenticated:
