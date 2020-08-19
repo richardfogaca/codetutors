@@ -31,3 +31,9 @@ class UploadImageForm(FlaskForm):
 class EditProfileForm(FlaskForm):
     about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
     save = SubmitField('Save')
+
+class ChangePasswordForm(FlaskForm):
+    current_password = PasswordField('Current password', validators=[DataRequired()])
+    new_password = PasswordField('New password', validators=[DataRequired()])
+    new_password_2 = PasswordField('Repeat new password', validators=[DataRequired(), EqualTo('new_password')])
+    save = SubmitField('Save')

@@ -34,14 +34,10 @@
         <div class="row">
             <div class="col-3">
                 <form action="{{ url_for('edit_profile') }}" enctype="multipart/form-data" method="POST">
-                    {# {{ image_form.hidden_tag() }} #}
                     <div>
                         <div>
                             {{ image_form.csrf_token }}
-                            
-                            <!-- Get the element ID via JS and add 'data-multiple-caption="{count} files selected" multiple' -->
                             {{ image_form.profile_img }}
-                            
                             <label for="profile_img"><span>Select file</span></label>
                         </div>
                         <div class="input-group-append">

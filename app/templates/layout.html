@@ -42,12 +42,17 @@
             <ul class="navbar-nav">
                 <li class="nav-item mr-2">
                     {% if current_user.is_anonymous %}
-                    <a href="{{ url_for('register') }}" class="nav-link btn btn-outline-primary" style="color: black">Sign up</a>
+                    <a href="{{ url_for('register') }}" class="nav-link btn btn-outline-primary">Sign up</a>
+                    </li>
                     {% else %}
-                    <a href="{{ url_for('profile', id=current_user.id) }}" class="nav-link">Profile</a>
-                    <a href="{{ url_for('settings') }}" class="nav-link">Settings</a>
+                    <li class="nav-item mr-2">
+                        <a href="{{ url_for('profile', id=current_user.id) }}" class="nav-link">Profile</a>
+                    </li>
+                    <li class="nav-item mr-2">
+                        <a href="{{ url_for('settings') }}" class="nav-link">Settings</a>
+                    </li>
                     {% endif %}
-                </li>
+
                 <li class="nav-item">
                     {% if current_user.is_anonymous %}
                     <a href="{{ url_for('login') }}" class="nav-link">Login</a>

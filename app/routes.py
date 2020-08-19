@@ -7,7 +7,7 @@ from app import app, photos
 from app.models import Users
 from app.utils import expand2square
 from manage import db
-from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm
+from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm
 from PIL import Image
 import logging, os, time, hashlib, pathlib
 
@@ -105,26 +105,27 @@ def edit_profile():
         profile_form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', user=user, profile_form=profile_form, image_form=image_form)
 
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    id = current_user.get_id()
+    user = Users.query.get(id)
+    form = ChangePasswordForm()
+    logging.warning(form.errors)
+    if form.validate_on_submit():
+        if user.check_password(form.current_password.data):
+            user.set_password(form.new_password.data)
+            db.session.commit()
+            flash('Sucess! You have updated your password!')
+            return redirect(url_for('profile', id=id))
+        else:
+            flash('Please review your password and try again')
+    return render_template('settings.html', form=form)
+    # out of the conditional, just load the settings page
+
 @app.route('/display/<filename>')
+@login_required
 def display_image(filename):
 	print('display_image filename: ' + filename)
 	return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
-
-# @app.route('/manage')
-# def manage_file():
-#     files_list = os.listdir(app.config['UPLOADED_PHOTOS_DEST'])
-#     return render_template('manage.html', files_list=files_list)
-
-
-# @app.route('/open/<filename>')
-# def open_file(filename):
-#     file_url = photos.url(filename)
-#     return render_template('browser.html', file_url=file_url)
-
-
-# @app.route('/delete/<filename>')
-# def delete_file(filename):
-#     file_path = photos.path(filename)
-#     os.remove(file_path)
-#     return redirect(url_for('manage_file'))
