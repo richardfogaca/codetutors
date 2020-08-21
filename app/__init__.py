@@ -3,8 +3,8 @@ from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_cl
 from flask_wtf.csrf import CSRFProtect
 from app.config import Config
 from flask_login import LoginManager
-from logging.handlers import RotatingFileHandler
-import os
+from logging.handlers import RotatingFileHandler, SMTPHandler
+import os, logging
 
 app = Flask(__name__)
 csrf = CSRFProtect(app)

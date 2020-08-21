@@ -6,6 +6,12 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
 
+
+followers = db.Table('followers',
+    db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('followed_id', db.Integer, db.ForeignKey('tutors.id'))
+)
+
 class Users(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -18,6 +24,11 @@ class Users(UserMixin, db.Model):
     about_me = db.Column(db.String(140), nullable=True)
     last_seen = db.Column(db.DateTime(140), default=datetime.utcnow)
 
+    # the many-to-many in this table is accessible via user.followed
+    # In Tutors via tutor.followers
+    followed = db.relationship('Tutors', secondary=followers, lazy='dynamic',
+        backref=db.backref('followers', lazy='dynamic'))
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -28,9 +39,25 @@ class Users(UserMixin, db.Model):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{}?d=identicon'.format(
         digest)
+    
+    def follow(self, tutor):
+        if not self.is_following(tutor):
+            self.followed.append(tutor)
+
+    def unfollow(self, tutor):
+        if self.is_following(tutor):
+            self.followed.remove(tutor)
+
+    def is_following(self, tutor):
+        if tutor.id is None:
+            return False
+        return self.followed.filter_by(id=tutor.id).first() is not None
+
+    def following_total(self):
+        return self.followed.count()
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return '<User {} {}>'.format(self.first_name, self.last_name)
 
 class Tutors(db.Model):
     __tablename__ = 'tutors'
@@ -40,6 +67,9 @@ class Tutors(db.Model):
 
     # Connecting this field to the association table. 
     category = db.relationship("Categories", secondary="tutor_category")
+
+    def followers_total(self):
+        return self.followers.count()
 
     def __repr__(self):
         return '<Tutor id {}'.format(self.user_id) + ' , price {}>'.format(self.price)

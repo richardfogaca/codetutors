@@ -1,10 +1,13 @@
-from flask import render_template, flash, redirect, request, url_for
+from flask import render_template, flash, redirect, request, url_for, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
+from flask_http_response import success, result, error
+from flask_wtf.csrf import generate_csrf
+from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from app import app, photos
-from app.models import Users
+from app.models import *
 from app.utils import expand2square
 from manage import db
 from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm
@@ -63,10 +66,30 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/profile/<int:id>', methods=['GET'])
-def profile(id):
-    user = Users.query.get(id)
-    return render_template('profile.html', user=user)
+@app.route('/profile/<int:tutor_id>', methods=['GET'])
+def profile(tutor_id):
+    """Only show Tutors, won't be displaying users profiles"""
+    
+    try:
+        tutor = Tutors.query.get(tutor_id)
+    except NoResultFound:
+        flash("Tutor not registered", "danger")
+
+    # get the user from tutor
+    user = Users.query.get(tutor.user_id)
+    
+    if user is None or tutor is None:
+        is_tutor = False
+        flash('Tutor not registered', 'danger')
+        return render_template('404.html')
+    else:
+        is_tutor = True
+
+    is_owner = True if user == current_user else False
+    is_following = True if user.is_following(tutor) else False
+    
+    return render_template('profile.html', user=user, tutor=tutor, is_owner=is_owner, 
+        is_following=is_following, is_tutor=is_tutor)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -74,9 +97,16 @@ def edit_profile():
     """
     Edit profile page functionalities: include/change profile img, password, about me (initially)
     First I'll add just the users' functionalities, later I will also include Tutors
+    TODO: Verify is user is a tutor
     """
-    id = current_user.get_id()
+
+    id = current_user.id
     user = Users.query.get(id)
+
+    tutor = Tutors.query.filter_by(user_id=id).first()
+    if tutor is None:
+        return render_template('403.html')
+
     profile_form = EditProfileForm()
     image_form = UploadImageForm()
     if request.method == 'POST':
@@ -99,8 +129,8 @@ def edit_profile():
         if profile_form.validate_on_submit() and profile_form.save.data:
             current_user.about_me = profile_form.about_me.data
         db.session.commit()
-        flash('Your changes have been saved.')
-        return redirect(url_for('profile', id=id))
+        flash('Your changes have been saved.', 'success')
+        return redirect(url_for('profile', tutor_id=tutor.id))
     elif request.method == 'GET':
         profile_form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', user=user, profile_form=profile_form, image_form=image_form)
@@ -108,7 +138,7 @@ def edit_profile():
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
-    id = current_user.get_id()
+    id = current_user.id
     user = Users.query.get(id)
     form = ChangePasswordForm()
     logging.warning(form.errors)
@@ -117,7 +147,7 @@ def settings():
             user.set_password(form.new_password.data)
             db.session.commit()
             flash('Sucess! You have updated your password!')
-            return redirect(url_for('profile', id=id))
+            return redirect(url_for('settings'))
         else:
             flash('Please review your password and try again')
     return render_template('settings.html', form=form)
@@ -129,15 +159,33 @@ def display_image(filename):
 	print('display_image filename: ' + filename)
 	return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html'), 404
 
-@app.errorhandler(500)
-def not_found_error(error):
+@app.route('/follow_unfollow/<int:tutor_id>', methods=['GET','PATCH'])
+@login_required
+def follow_unfollow(tutor_id):
+    """ GET: returns if user is following the tutor, followers and following total
+        PUT: follow or unfollow
     """
-    The 500 error could be invoked after a database error, 
-    to make sure any failed database sessions do not interfere with any database accesses triggered by the template, I issue a session rollback.
-    """
-    db.session.rollback()
-    return render_template('505.html'), 505
+    user = Users.query.get(current_user.id)
+    try:
+        tutor = Tutors.query.get(tutor_id)
+    except NoResultFound:
+        return JsonResponse({"error": "Tutor not registered"}, status=401)
+
+    following_count = user.following_total()
+    followers_count = tutor.followers_total()
+    is_following = user.is_following(tutor)
+
+    if request.method == 'GET':
+        return jsonify(is_following=is_following, followers_count=followers_count,
+            following_count=following_count)
+    
+    elif request.method == 'PATCH':
+        if is_following:
+            user.unfollow(tutor)
+        else:
+            user.follow(tutor)
+        db.session.commit()
+        return success.return_response(message='Successfully Completed', status=204)
+    else:
+        return jsonify(error="GET or PUT request required", status=400)
