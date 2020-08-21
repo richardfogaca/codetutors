@@ -25,7 +25,8 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', title='Home Page')
+    tutors = Tutors.query.all()
+    return render_template('index.html', title='Home Page', tutors=tutors)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -97,9 +98,7 @@ def edit_profile():
     """
     Edit profile page functionalities: include/change profile img, password, about me (initially)
     First I'll add just the users' functionalities, later I will also include Tutors
-    TODO: Verify is user is a tutor
     """
-
     id = current_user.id
     user = Users.query.get(id)
 
@@ -140,18 +139,37 @@ def edit_profile():
 def settings():
     id = current_user.id
     user = Users.query.get(id)
-    form = ChangePasswordForm()
-    logging.warning(form.errors)
-    if form.validate_on_submit():
-        if user.check_password(form.current_password.data):
-            user.set_password(form.new_password.data)
+    password_form = ChangePasswordForm()
+    image_form = UploadImageForm()
+    logging.warning(image_form.errors)
+    if request.method == 'POST':
+        if password_form.validate_on_submit():
+            if user.check_password(password_form.current_password.data):
+                user.set_password(password_form.new_password.data)
+                db.session.commit()
+                flash('Sucess! You have updated your password!')
+            else:
+                flash('Please review your password and try again')
+        elif image_form.validate_on_submit():
+            # saving the profile image
+            filename = image_form.profile_img.data
+            str_name = 'admin' + str(int(time.time()))
+            name = hashlib.md5(str_name.encode("utf-8")).hexdigest()[:15]
+            file_extension = pathlib.Path(filename.filename).suffix
+            photos.save(filename, name=name + '.')
+
+            # resizing the thumbnail image
+            file_url = photos.path(name) + file_extension
+            image = Image.open(file_url)
+            image = expand2square(image, (0, 0, 0)).resize((150, 150), Image.LANCZOS)
+            image.save(file_url, quality=95)
+
+            # saving the filename into users.profile_img
+            user.profile_img = name + file_extension
             db.session.commit()
-            flash('Sucess! You have updated your password!')
-            return redirect(url_for('settings'))
-        else:
-            flash('Please review your password and try again')
-    return render_template('settings.html', form=form)
-    # out of the conditional, just load the settings page
+            flash('Your photo has been saved.', 'success')
+        return redirect(url_for('settings'))
+    return render_template('settings.html', user=user, image_form=image_form, password_form=password_form)
 
 @app.route('/display/<filename>')
 @login_required
@@ -160,32 +178,25 @@ def display_image(filename):
 	return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
 
-@app.route('/follow_unfollow/<int:tutor_id>', methods=['GET','PATCH'])
+@app.route('/follow_unfollow/<int:tutor_id>')
 @login_required
 def follow_unfollow(tutor_id):
-    """ GET: returns if user is following the tutor, followers and following total
-        PUT: follow or unfollow
-    """
     user = Users.query.get(current_user.id)
     try:
         tutor = Tutors.query.get(tutor_id)
     except NoResultFound:
-        return JsonResponse({"error": "Tutor not registered"}, status=401)
+        flash("Tutor not registered", "danger")
 
-    following_count = user.following_total()
-    followers_count = tutor.followers_total()
     is_following = user.is_following(tutor)
 
-    if request.method == 'GET':
-        return jsonify(is_following=is_following, followers_count=followers_count,
-            following_count=following_count)
-    
-    elif request.method == 'PATCH':
-        if is_following:
-            user.unfollow(tutor)
-        else:
-            user.follow(tutor)
-        db.session.commit()
-        return success.return_response(message='Successfully Completed', status=204)
-    else:
-        return jsonify(error="GET or PUT request required", status=400)
+    user.unfollow(tutor) if is_following else user.follow(tutor)
+    db.session.commit()
+    return redirect(url_for('profile', tutor_id=tutor_id))
+
+
+@app.route('/is_following/<int:tutor_id>')
+def is_following(tutor_id):
+    """
+    Return if the current user is following the tutor
+    """
+    pass

@@ -18,37 +18,33 @@ document.addEventListener('DOMContentLoaded', () => {
             else
                 label.innerHTML = labelVal;
         });
+    }
+    else if (document.getElementById('follow-unfollow-btn')) {
+        if (document.getElementById("profileId") != null) {
+            var tutor_id = document.getElementById("profileId").value;
+            let follow_button = document.getElementById("profileId").value;
+            load_follow_link(tutor_id);
+        }
     
     }
 });
-//     else if (document.getElementById('follow-unfollow-btn')) {
-//         if (document.getElementById("profileId") != null) {
-//             var tutor_id = document.getElementById("profileId").value;
-//             let follow_button = document.getElementById("profileId").value;
-//             load_follow_link(tutor_id);
-//         }
-//         document.getElementById('follow-unfollow-btn').addEventListener('click', () => {
-//             follow_unfollow(tutor_id);
-//         });
-//     }
+    
 
-// });
+function load_follow_link(id) {
+    // apply_csrf_token();
 
-// function load_follow_link(id) {
-//     // apply_csrf_token();
-
-//     fetch(`/follow_unfollow/${id}`)
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.is_following)
-//             document.getElementById('follow-unfollow-btn').innerHTML = 'Unfollow';
-//         else 
-//             document.getElementById('follow-unfollow-btn').innerHTML = 'Follow';
+    fetch(`/is_following/${id}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.is_following)
+            document.getElementById('follow-unfollow-btn').innerHTML = 'Unfollow';
+        else 
+            document.getElementById('follow-unfollow-btn').innerHTML = 'Follow';
         
-//         document.getElementById('followers-count').innerHTML = data.followers_count;
-//         document.getElementById('following-count').innerHTML = data.following_count;
-//     });
-// }
+        document.getElementById('followers-count').innerHTML = data.followers_count;
+        document.getElementById('following-count').innerHTML = data.following_count;
+    });
+}
 
 // function follow_unfollow(id) {
 //     // apply_csrf_token();
