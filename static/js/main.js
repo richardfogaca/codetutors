@@ -20,51 +20,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     else if (document.getElementById('follow-unfollow-btn')) {
-        if (document.getElementById("profileId") != null) {
-            var tutor_id = document.getElementById("profileId").value;
-            let follow_button = document.getElementById("profileId").value;
-            load_follow_link(tutor_id);
+        if (document.getElementById("user-id") != null) {
+            let user_id = document.getElementById("user-id").value;
+            let tutor_id = document.getElementById("tutor-id").value;
+            load_follow_link(user_id, tutor_id);
         }
     
     }
 });
     
 
-function load_follow_link(id) {
-    // apply_csrf_token();
-
-    fetch(`/is_following/${id}`)
+function load_follow_link(user_id, tutor_id) {
+    fetch(`/is_following/${user_id}/${tutor_id}`)
     .then(response => response.json())
     .then(data => {
         if (data.is_following)
             document.getElementById('follow-unfollow-btn').innerHTML = 'Unfollow';
         else 
             document.getElementById('follow-unfollow-btn').innerHTML = 'Follow';
-        
-        document.getElementById('followers-count').innerHTML = data.followers_count;
-        document.getElementById('following-count').innerHTML = data.following_count;
     });
 }
-
-// function follow_unfollow(id) {
-//     // apply_csrf_token();
-    
-//     fetch(`/follow_unfollow/${id}`, {
-//         method: 'PATCH'
-//     })
-//     .then(() => {
-//         load_follow_link(id);
-//     });
-// }
-
-// function apply_csrf_token() {
-//     let csrftoken = $('meta[name=csrf-token]').attr('content');
-
-//     $.ajaxSetup({
-//         beforeSend: function(xhr, settings) {
-//             if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-//                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
-//             }
-//         }
-//     });
-// )}

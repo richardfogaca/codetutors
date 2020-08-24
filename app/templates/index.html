@@ -3,7 +3,40 @@
 {% block title %} {{ title }} {% endblock %}
 
 {% block content %}
-    {% if current_user.is_authenticated %}
+    {# {% if current_user.is_authenticated %}
     <h1>Hi, {{ current_user.first_name }}!</h1>
-    {% endif %}
+    {% endif %} #}
+
+<div class="profiles-container container" style="border: 2px solid red">
+
+{% for i in range(data|length) %}
+
+<div class="profile container" style="border: 2px solid green">
+        <div class="row">
+            <div class="col">
+            <ul>
+                {% if data['user'][i].profile_img %}
+                {# {% if row[0].profile_img %} #}
+                <li><img class="avatar" src="{{ url_for('display_image', filename=data['user'][i].profile_img) }}" alt="User thumbnail"></li>
+                {% else %}
+                <li><img class="avatar" src="{{ data['user'][i].avatar() }}" alt="User thumbnail"></li>
+                {% endif %}
+                {# <li><img src="{{ row[0].profile_img }}"></li> #}
+                <li>Telphone number</li>
+            </ul>
+            </div>
+            <div class="col">
+                <li>{{ data['user'][i].first_name }} {{ data['user'][i].last_name }}</li>
+                <li>$ {{ data['tutor'][i].price }}</li>
+                <li>Reviews</li>
+                <li>Description</li>
+                <li>Categories</li>
+            </div>
+        </div>
+    </div>
+
+{% endfor %}
+
+</div>
+
 {% endblock %}

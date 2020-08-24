@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 from app import app, photos
 from app.models import *
-from app.utils import expand2square
+from app.utils import expand2square, row2dict
 from manage import db
 from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm
 from PIL import Image
@@ -25,8 +25,23 @@ def before_request():
 @app.route('/')
 @app.route('/index')
 def index():
+    """
+    Shows all Tutors on the index page. 
+    Data is a dictonary containing User and Tutor info, inside each there's a list containing
+    an instance of the respective class
+    """
     tutors = Tutors.query.all()
-    return render_template('index.html', title='Home Page', tutors=tutors)
+    result = db.session.query(Users, Tutors).join(Tutors).all()
+    
+    data = {}
+    data['user'] = []
+    data['tutor'] = []
+
+    for i in range(len(result)):
+        data['user'].append(result[i][0])
+        data['tutor'].append(result[i][1])
+
+    return render_template('index.html', title='Home Page', data=data)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -194,9 +209,16 @@ def follow_unfollow(tutor_id):
     return redirect(url_for('profile', tutor_id=tutor_id))
 
 
-@app.route('/is_following/<int:tutor_id>')
-def is_following(tutor_id):
-    """
-    Return if the current user is following the tutor
-    """
-    pass
+@app.route('/is_following/<int:user_id>/<int:tutor_id>')
+def is_following(user_id, tutor_id):
+    try:
+        user = Users.query.get(user_id)
+    except NoResultFound:
+        return jsonify(error="User not found", code=404)
+    try:
+        tutor = Tutors.query.get(tutor_id)
+    except NoResultFound:
+        return jsonify(error="Tutor not found", code=404)
+    
+    is_following = user.is_following(tutor)
+    return jsonify(is_following=is_following)
