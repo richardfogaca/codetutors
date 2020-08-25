@@ -14,6 +14,7 @@ followers = db.Table('followers',
 
 class Users(UserMixin, db.Model):
     __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(64), index=True, nullable=False)
     last_name = db.Column(db.String(64), index=True, nullable=False)
@@ -21,7 +22,6 @@ class Users(UserMixin, db.Model):
     profile_img = db.Column(db.String(120), nullable=True)
     password_hash = db.Column(db.String(128), nullable=False)
     timestamp_joined = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    about_me = db.Column(db.String(140), nullable=True)
     last_seen = db.Column(db.DateTime(140), default=datetime.utcnow)
 
     # the many-to-many in this table is accessible via user.followed
@@ -61,9 +61,12 @@ class Users(UserMixin, db.Model):
 
 class Tutors(db.Model):
     __tablename__ = 'tutors'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    about_me = db.Column(db.String(140), nullable=True)
     price = db.Column(db.Float)
+    telephone = db.Column(db.String(50), nullable=True)
 
     # Connecting this field to the association table. 
     category = db.relationship("Categories", secondary="tutor_category")
@@ -76,6 +79,7 @@ class Tutors(db.Model):
 
 class Reviews(db.Model):
     __tablename__ = 'reviews'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     tutor_id = db.Column(db.Integer, db.ForeignKey('tutors.id'))
@@ -87,6 +91,7 @@ class Reviews(db.Model):
 
 class Categories(db.Model):
     __tablename__ = 'categories'
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True)
     # Connecting this field to the association table. 
