@@ -107,6 +107,16 @@ def profile(tutor_id):
     return render_template('profile.html', user=user, tutor=tutor, is_owner=is_owner, 
         is_following=is_following, is_tutor=is_tutor)
 
+@app.route('/profile/<int:tutor_id>/followers', methods=['GET'])
+@login_required
+def followers(tutor_id):
+    pass
+
+@app.route('/profile/<int:tutor_id>/followers', methods=['GET'])
+@login_required
+def followers(tutor_id):
+    pass
+
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():

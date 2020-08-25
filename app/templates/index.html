@@ -13,10 +13,10 @@
 
 <div class="profile-container container-fluid">
         <div class="row justify-content-center">
-            <div class="profile-image col-4">
+            <div class="profile-image col-3">
             <ul>
                 {% if data['user'][i].profile_img %}
-                    <li><img class="avatar" src="{{ url_for('display_image', filename=data['user'][i].profile_img) }}" alt="User thumbnail"></li>
+                    <li class="d-flex justify-content-center"><img class="avatar" src="{{ url_for('display_image', filename=data['user'][i].profile_img) }}" alt="User thumbnail"></li>
                 {% else %}
                     <li><img class="avatar" src="{{ data['user'][i].avatar() }}" alt="User thumbnail"></li>
                 {% endif %}
@@ -25,7 +25,7 @@
                 {% endif %}
             </ul>
             </div>
-            <div class="col-8">
+            <div class="col-9 justify-content-center">
                 <li><h3>{{ data['user'][i].first_name }} {{ data['user'][i].last_name }}</h3></li>
                 {% if data['tutor'][i].price %}
                     <li>$ {{ data['tutor'][i].price }}</li>
