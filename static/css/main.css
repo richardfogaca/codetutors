@@ -33,3 +33,21 @@
 	outline: 1px dotted #000;
 	outline: -webkit-focus-ring-color auto 5px;
 }
+
+ul, li {
+	list-style-type: none;
+	padding: 6px;
+}
+
+.profile-image {
+	padding: 25px 0px 0px 25px;
+}
+
+.profile-container {
+	padding-bottom: 8px;
+	border: 1px solid #EBEBEB;
+}
+
+.profiles-container {
+	padding: 10px 35px;
+}
