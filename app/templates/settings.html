@@ -31,26 +31,10 @@
                 <h1>User: {{ user.first_name }} {{ user.last_name }}</h1><br>
             </div>
             <div class="row pt-3">
-                <form action="{{ url_for('settings') }}" method="POST">
-                    {{ password_form.csrf_token() }}
-                    <div class="container">
-                        <div class="row">
-                            <div class="col">{{ password_form.current_password.label }}</div>
-                            <div class="col">{{ password_form.current_password }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col">{{ password_form.new_password.label }}</div>
-                            <div class="col">{{ password_form.new_password }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col">{{ password_form.new_password_2.label }}</div>
-                            <div class="col">{{ password_form.new_password_2 }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col">{{ password_form.save }}</div>
-                        </div>
-                    </div>
-                </form>
+                <ul>
+                    <li><a href="{{ url_for('change_password') }}">Change password</a></li>
+                    <li><a href="{{ url_for('following') }}">Following</a></li>
+                </ul>
             </div>
         </div>
     </div>

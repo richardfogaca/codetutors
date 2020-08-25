@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 from app import app, photos
 from app.models import *
-from app.utils import expand2square, row2dict
+from app.utils import expand2square
 from manage import db
 from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm
 from PIL import Image
@@ -30,18 +30,18 @@ def index():
     Data is a dictonary containing User and Tutor info, inside each there's a list containing
     an instance of the respective class
     """
-    tutors = Tutors.query.all()
     result = db.session.query(Users, Tutors).join(Tutors).all()
     
     data = {}
     data['user'] = []
     data['tutor'] = []
+    rows = len(result)
 
     for i in range(len(result)):
         data['user'].append(result[i][0])
         data['tutor'].append(result[i][1])
 
-    return render_template('index.html', title='Home Page', data=data)
+    return render_template('index.html', title='Home Page', data=data, rows=rows)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -107,15 +107,29 @@ def profile(tutor_id):
     return render_template('profile.html', user=user, tutor=tutor, is_owner=is_owner, 
         is_following=is_following, is_tutor=is_tutor)
 
-@app.route('/profile/<int:tutor_id>/followers', methods=['GET'])
+@app.route('/following', methods=['GET'])
 @login_required
-def followers(tutor_id):
-    pass
+def following():
+    """
+    Show all the Tutors the user is following (Join tables Tutors, Users and Followers)
+    """
+    id = current_user.id
+    user = Users.query.get(current_user.id)
 
-@app.route('/profile/<int:tutor_id>/followers', methods=['GET'])
-@login_required
-def followers(tutor_id):
-    pass
+    # Joining tables Tutors, Users and Followers, filtering by Users.id
+    result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter(Users.id==id).all()
+
+    data = {}
+    data['user'] = []
+    data['tutor'] = []
+    rows = len(result)
+
+    for i in range(len(result)):
+        data['user'].append(result[i][0])
+        data['tutor'].append(result[i][1])
+
+    return render_template('index.html', title='Following', data=data, rows=rows)
+
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -164,18 +178,10 @@ def edit_profile():
 def settings():
     id = current_user.id
     user = Users.query.get(id)
-    password_form = ChangePasswordForm()
     image_form = UploadImageForm()
     logging.warning(image_form.errors)
     if request.method == 'POST':
-        if password_form.validate_on_submit():
-            if user.check_password(password_form.current_password.data):
-                user.set_password(password_form.new_password.data)
-                db.session.commit()
-                flash('Sucess! You have updated your password!')
-            else:
-                flash('Please review your password and try again')
-        elif image_form.validate_on_submit():
+        if image_form.validate_on_submit():
             # saving the profile image
             filename = image_form.profile_img.data
             str_name = 'admin' + str(int(time.time()))
@@ -194,7 +200,23 @@ def settings():
             db.session.commit()
             flash('Your photo has been saved.', 'success')
         return redirect(url_for('settings'))
-    return render_template('settings.html', user=user, image_form=image_form, password_form=password_form)
+    return render_template('settings.html', user=user, image_form=image_form)
+
+@app.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    user = Users.query.get(current_user.id)
+    password_form = ChangePasswordForm()
+    if request.method == 'POST':
+        if password_form.validate_on_submit():
+            if user.check_password(password_form.current_password.data):
+                user.set_password(password_form.new_password.data)
+                db.session.commit()
+                flash('Sucess! You have updated your password!')
+            else:
+                flash('Please review your password and try again')
+        return redirect(url_for('settings'))
+    return render_template('change_password.html', user=user, password_form=password_form)
 
 @app.route('/display/<filename>')
 @login_required

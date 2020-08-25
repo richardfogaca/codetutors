@@ -9,7 +9,7 @@
 
 <div class="profiles-container container-fluid">
 
-{% for i in range(data|length) %}
+{% for i in range(rows) %}
 
 <div class="profile-container container-fluid">
         <div class="row justify-content-center">
@@ -26,7 +26,7 @@
             </ul>
             </div>
             <div class="col-9 justify-content-center">
-                <li><h3>{{ data['user'][i].first_name }} {{ data['user'][i].last_name }}</h3></li>
+                <li><a href="{{ url_for('profile', tutor_id=data['tutor'][i].id) }}"><h3>{{ data['user'][i].first_name }} {{ data['user'][i].last_name }}</h3></a></li>
                 {% if data['tutor'][i].price %}
                     <li>$ {{ data['tutor'][i].price }}</li>
                 {% endif %}
