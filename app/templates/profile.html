@@ -30,7 +30,7 @@
                 <span>Followers: <label id="followers-count">{{ tutor.followers_total() }}</label></span>
             </div>
             <div class="row">
-                <span>Following: <label id="following-count">{{ user.following_total() }}</label></span>
+                <span><a href="{{ url_for('following') }}">Following: </a><label id="following-count">{{ user.following_total() }}</label></span>
             </div>
         </div>
     </div>

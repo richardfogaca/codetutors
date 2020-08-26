@@ -30,6 +30,7 @@ def index():
     Data is a dictonary containing User and Tutor info, inside each there's a list containing
     an instance of the respective class
     """
+
     result = db.session.query(Users, Tutors).join(Tutors).all()
     
     data = {}
@@ -173,9 +174,9 @@ def edit_profile():
         profile_form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', user=user, profile_form=profile_form, image_form=image_form)
 
-@app.route('/settings', methods=['GET', 'POST'])
+@app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
-def settings():
+def dashboard():
     id = current_user.id
     user = Users.query.get(id)
     image_form = UploadImageForm()
@@ -199,8 +200,8 @@ def settings():
             user.profile_img = name + file_extension
             db.session.commit()
             flash('Your photo has been saved.', 'success')
-        return redirect(url_for('settings'))
-    return render_template('settings.html', user=user, image_form=image_form)
+        return redirect(url_for('dashboard'))
+    return render_template('dashboard.html', user=user, image_form=image_form)
 
 @app.route('/change_password', methods=['GET', 'POST'])
 @login_required
@@ -215,7 +216,7 @@ def change_password():
                 flash('Sucess! You have updated your password!')
             else:
                 flash('Please review your password and try again')
-        return redirect(url_for('settings'))
+        return redirect(url_for('dashboard'))
     return render_template('change_password.html', user=user, password_form=password_form)
 
 @app.route('/display/<filename>')
