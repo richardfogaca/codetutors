@@ -10,7 +10,6 @@
 <div class="profiles-container container-fluid">
 
 {% for i in range(rows) %}
-
 <div class="profile-container container-fluid">
         <div class="row justify-content-center">
             <div class="profile-image col-3">
@@ -38,9 +37,13 @@
             </div>
         </div>
     </div>
-
 {% endfor %}
-
 </div>
+{% if prev_url %}
+<a href="{{ prev_url }}">Previous page</a>
+{% endif %}
+{% if next_url %}
+<a href="{{ next_url }}">Next page</a>
+{% endif %}
 
 {% endblock %}

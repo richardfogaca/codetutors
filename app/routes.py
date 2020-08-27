@@ -7,10 +7,11 @@ from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from app import app, photos
+from app.email import send_password_reset_email
 from app.models import *
 from app.utils import expand2square
 from manage import db
-from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm
+from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm, ResetPasswordRequestForm, ResetPasswordForm
 from PIL import Image
 import logging, os, time, hashlib, pathlib
 
@@ -31,18 +32,26 @@ def index():
     an instance of the respective class
     """
 
-    result = db.session.query(Users, Tutors).join(Tutors).all()
-    
+    page = request.args.get('page', 1, type=int)
+    result = db.session.query(Users, Tutors).join(Tutors).paginate(
+        page, app.config['TUTORS_PER_PAGE'], False)
+    next_url = url_for('index', page=result.next_num) \
+        if result.has_next else None
+    prev_url = url_for('index', page=result.prev_num) \
+        if result.has_prev else None
+
     data = {}
     data['user'] = []
     data['tutor'] = []
-    rows = len(result)
+    rows = len(result.items)
 
-    for i in range(len(result)):
-        data['user'].append(result[i][0])
-        data['tutor'].append(result[i][1])
+    for i in range(rows):
+        data['user'].append(result.items[i][0])
+        data['tutor'].append(result.items[i][1])
 
-    return render_template('index.html', title='Home Page', data=data, rows=rows)
+    return render_template('index.html', title='Home', 
+                        data=data, rows=rows, 
+                        next_url=next_url, prev_url=prev_url)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -117,19 +126,37 @@ def following():
     id = current_user.id
     user = Users.query.get(current_user.id)
 
-    # Joining tables Tutors, Users and Followers, filtering by Users.id
-    result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter(Users.id==id).all()
+    page = request.args.get('page', 1, type=int)
+
+    # Joining tables Tutors, Users and Followers, filtering
+    # TODO Fix this: 'Users.id==id'
+    # result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter(Users.id==id).paginate(
+    #     page, app.config['TUTORS_PER_PAGE'], False)
+
+    # Join tables then apply filter: 'Users.followed' (Tutors the user is following)..
+    # .. + the T
+    result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter(Users.followed.is_(
+        Users.id==id # I need to put here the Tutor
+        )).paginate(
+            page, app.config['TUTORS_PER_PAGE'], False)
+
+    next_url = url_for('index', page=result.next_num) \
+        if result.has_next else None
+    prev_url = url_for('index', page=result.prev_num) \
+        if result.has_prev else None
 
     data = {}
     data['user'] = []
     data['tutor'] = []
-    rows = len(result)
+    rows = len(result.items)
 
-    for i in range(len(result)):
-        data['user'].append(result[i][0])
-        data['tutor'].append(result[i][1])
+    for i in range(rows):
+        data['user'].append(result.items[i][0])
+        data['tutor'].append(result.items[i][1])
 
-    return render_template('index.html', title='Following', data=data, rows=rows)
+    return render_template('index.html', title='Following', 
+                        data=data, rows=rows,
+                        next_url=next_url, prev_url=prev_url)
 
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -218,6 +245,35 @@ def change_password():
                 flash('Please review your password and try again')
         return redirect(url_for('dashboard'))
     return render_template('change_password.html', user=user, password_form=password_form)
+
+@app.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Check your email for the instructions to reset your password')
+        return redirect(url_for('login'))
+    return render_template('reset_password_request.html',
+                           title='Reset Password', form=form)
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    user = Users.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('index'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset.')
+        return redirect(url_for('login'))
+    return render_template('reset_password.html', form=form)
 
 @app.route('/display/<filename>')
 @login_required
