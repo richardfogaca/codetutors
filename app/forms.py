@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
+from app.models import Categories
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectMultipleField, widgets
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 from app.models import Users
 from app import photos
@@ -47,3 +48,11 @@ class ResetPasswordForm(FlaskForm):
     password2 = PasswordField(
         'Repeat Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Request Password Reset')
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
+
+class AddCategoryForm(FlaskForm):
+    category = MultiCheckboxField('Programming Languages', coerce=int)
+    save = SubmitField('Save')

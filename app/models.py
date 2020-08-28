@@ -93,6 +93,11 @@ class Tutors(db.Model):
     def add_category(self, category):
         return self.category.append(category)
 
+    def get_categories(self):
+        """ Returns all categories of the respective Tutor
+        """
+        return db.session.query(Categories).join(Tutors.category).filter(Tutors.user_id==self.user_id).all()
+
     def __repr__(self):
         return '<Tutor id {}'.format(self.user_id) + ' , price {}>'.format(self.price)
 
@@ -115,6 +120,10 @@ class Categories(db.Model):
     name = db.Column(db.String(64), index=True)
     # Connecting this field to the association table. 
     tutor = db.relationship('Tutors', secondary="tutor_category")
+
+    @staticmethod
+    def get_all():
+        return db.session.query(Categories).all()
 
     def __repr__(self):
         return '<Category {}>'.format(self.name)

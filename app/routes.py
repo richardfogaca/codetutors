@@ -11,7 +11,7 @@ from app.email import send_password_reset_email
 from app.models import *
 from app.utils import expand2square
 from manage import db
-from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm, ResetPasswordRequestForm, ResetPasswordForm
+from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm, ResetPasswordRequestForm, ResetPasswordForm, AddCategoryForm
 from PIL import Image
 import logging, os, time, hashlib, pathlib
 
@@ -302,3 +302,23 @@ def is_following(user_id, tutor_id):
     
     is_following = user.is_following(tutor)
     return jsonify(is_following=is_following)
+
+@app.route('/add_category', methods=['GET', 'POST'])
+@login_required
+def add_category():
+    user = Users.query.get(current_user.id)
+    tutor = Tutors.query.filter_by(user_id=user.id).first()
+
+    form = AddCategoryForm()
+    form.category.choices = [(c.id, c.name) for c in Categories.query.order_by('name')]
+    if request.method == 'POST' and form.validate_on_submit():
+        categories = Categories.get_all()
+        # looping through the choices, we check the choice ID against what was passed in the form
+        for choice in categories:
+            # when there's a match, append the object
+            if choice.id in form.category.data:
+                tutor.category.append(choice)
+        db.session.commit()
+        flash('You have saved your categories')
+        return redirect('index')
+    return render_template('add_category.html', form=form)

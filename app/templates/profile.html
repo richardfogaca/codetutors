@@ -25,6 +25,10 @@
                 {% if user.about_me %}
                 {{ user.about_me.label }} {{ user.about_me }}
                 {% endif %}
+                <b>Categories:&nbsp</b>
+                {% for c in tutor.get_categories() %}
+                {{ c.name }}
+                {% endfor %}
             </div>
             <div class="row">
                 <span>Followers: <label id="followers-count">{{ tutor.followers_total() }}</label></span>
