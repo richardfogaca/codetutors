@@ -128,17 +128,9 @@ def following():
 
     page = request.args.get('page', 1, type=int)
 
-    # Joining tables Tutors, Users and Followers, filtering
-    # TODO Fix this: 'Users.id==id'
-    # result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter(Users.id==id).paginate(
-    #     page, app.config['TUTORS_PER_PAGE'], False)
-
-    # Join tables then apply filter: 'Users.followed' (Tutors the user is following)..
-    # .. + the T
-    result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter(Users.followed.is_(
-        Users.id==id # I need to put here the Tutor
-        )).paginate(
-            page, app.config['TUTORS_PER_PAGE'], False)
+    # Joining tables Tutors, Users and Followers, filtering to bring all Tutors followed by the user id
+    result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter_by(id==id
+        ).paginate(page, app.config['TUTORS_PER_PAGE'], False)
 
     next_url = url_for('index', page=result.next_num) \
         if result.has_next else None
