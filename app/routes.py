@@ -150,6 +150,39 @@ def following():
                         data=data, rows=rows,
                         next_url=next_url, prev_url=prev_url)
 
+@app.route('/following', methods=['GET'])
+@login_required
+def followers():
+    """
+    Show all the followers of a Tutor
+    """
+    id = current_user.id
+    user = Users.query.get(current_user.id)
+
+    page = request.args.get('page', 1, type=int)
+
+    # Joining tables Tutors, Users and Followers, filtering to bring all Tutors followed by the user id
+    result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter(Users.id==id
+        ).paginate(page, app.config['TUTORS_PER_PAGE'], False)
+
+    next_url = url_for('index', page=result.next_num) \
+        if result.has_next else None
+    prev_url = url_for('index', page=result.prev_num) \
+        if result.has_prev else None
+
+    data = {}
+    data['user'] = []
+    data['tutor'] = []
+    rows = len(result.items)
+
+    for i in range(rows):
+        data['user'].append(result.items[i][0])
+        data['tutor'].append(result.items[i][1])
+
+    return render_template('index.html', title='Following', 
+                        data=data, rows=rows,
+                        next_url=next_url, prev_url=prev_url)
+
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
@@ -322,3 +355,11 @@ def add_category():
         flash('You have saved your categories')
         return redirect('index')
     return render_template('add_category.html', form=form)
+
+@app.route('/category/<name>')
+@login_required
+def category(name):
+    """
+    List all Tutors related to that specific Category
+    """
+    pass
