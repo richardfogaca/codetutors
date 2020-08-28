@@ -27,7 +27,7 @@
                 {% endif %}
                 <b>Categories:&nbsp</b>
                 {% for c in tutor.get_categories() %}
-                {{ c.name }}
+                <a href="#" class="btn btn-outline-success btn-sm">{{ c.name }}</button>&nbsp
                 {% endfor %}
             </div>
             <div class="row">
