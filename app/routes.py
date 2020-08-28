@@ -129,7 +129,7 @@ def following():
     page = request.args.get('page', 1, type=int)
 
     # Joining tables Tutors, Users and Followers, filtering to bring all Tutors followed by the user id
-    result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter_by(id==id
+    result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter(Users.id==id
         ).paginate(page, app.config['TUTORS_PER_PAGE'], False)
 
     next_url = url_for('index', page=result.next_num) \
@@ -149,7 +149,6 @@ def following():
     return render_template('index.html', title='Following', 
                         data=data, rows=rows,
                         next_url=next_url, prev_url=prev_url)
-
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required

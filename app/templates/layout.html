@@ -47,9 +47,18 @@
                     <a href="{{ url_for('register') }}" class="nav-link btn btn-outline-primary">Sign up</a>
                     </li>
                     {% else %}
-                    <li class="nav-item mr-2">
-                        <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+                    {# Brings a dropdown with the dashboard links #}
+                    <li class="nav-item dropdown mr-2">
+                        <a href="{{ url_for('dashboard') }}" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="dropdown_target">
+                            <span class="caret">{{ current_user.first_name }}</span>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdown_target">
+                            <a href="{{ url_for('dashboard') }}" class="dropdown-item">Dashboard</a>
+                            <a href="{{ url_for('change_password') }}" class="dropdown-item">Change password</a>
+                            <a href="{{ url_for('following') }}" class="dropdown-item">Following</a>
+                        </div>
                     </li>
+
                     {% endif %}
 
                 <li class="nav-item">

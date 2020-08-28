@@ -89,6 +89,9 @@ class Tutors(db.Model):
 
     def followers_total(self):
         return self.followers.count()
+    
+    def add_category(self, category):
+        return self.category.append(category)
 
     def __repr__(self):
         return '<Tutor id {}'.format(self.user_id) + ' , price {}>'.format(self.price)

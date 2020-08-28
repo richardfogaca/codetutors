@@ -7,7 +7,6 @@ from app import app
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
-migrate.init_app(app,db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 db.init_app(app)
