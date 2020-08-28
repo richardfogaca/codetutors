@@ -150,19 +150,24 @@ def following():
                         data=data, rows=rows,
                         next_url=next_url, prev_url=prev_url)
 
-@app.route('/following', methods=['GET'])
+@app.route('/followers/<int:tutor_id>', methods=['GET'])
 @login_required
-def followers():
+def followers(tutor_id):
     """
     Show all the followers of a Tutor
     """
     id = current_user.id
     user = Users.query.get(current_user.id)
+    try:
+        tutor = Tutors.query.get(tutor_id)
+    except:
+        flash('Tutor not registered', 'danger')
+        return render_template('404.html')
 
     page = request.args.get('page', 1, type=int)
 
-    # Joining tables Tutors, Users and Followers, filtering to bring all Tutors followed by the user id
-    result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter(Users.id==id
+    # Joining tables Tutors, Users and Followers, filtering to bring all Users following the Tutor
+    result = db.session.query(Users, Tutors).join(Tutors.followers).filter(Tutors.id==tutor_id
         ).paginate(page, app.config['TUTORS_PER_PAGE'], False)
 
     next_url = url_for('index', page=result.next_num) \

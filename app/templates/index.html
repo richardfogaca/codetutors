@@ -11,32 +11,35 @@
 
 {% for i in range(rows) %}
 <div class="profile-container container-fluid">
-        <div class="row justify-content-center">
-            <div class="profile-image col-3">
-            <ul>
-                {% if data['user'][i].profile_img %}
-                    <li class="d-flex justify-content-center"><img class="avatar" src="{{ url_for('display_image', filename=data['user'][i].profile_img) }}" alt="User thumbnail"></li>
-                {% else %}
-                    <li><img class="avatar" src="{{ data['user'][i].avatar() }}" alt="User thumbnail"></li>
-                {% endif %}
-                {% if data['tutor'][i].telephone %}
-                    <li>{{ data['tutor'][i].telephone }}</li>
-                {% endif %}
-            </ul>
-            </div>
-            <div class="col-9 justify-content-center">
-                <li><a href="{{ url_for('profile', tutor_id=data['tutor'][i].id) }}"><h3>{{ data['user'][i].first_name }} {{ data['user'][i].last_name }}</h3></a></li>
-                {% if data['tutor'][i].price %}
-                    <li>$ {{ data['tutor'][i].price }}</li>
-                {% endif %}
-                <li>Reviews</li>
-                {% if data['tutor'][i].about_me %}
-                    <li>{{ data['tutor'][i].about_me }}</li>
-                {% endif %}
-                <li>Categories</li>
-            </div>
+    <div class="row justify-content-center">
+        <div class="profile-image col-3">
+        <ul>
+            {% if data['user'][i].profile_img %}
+                <li class="d-flex justify-content-center"><img class="avatar" src="{{ url_for('display_image', filename=data['user'][i].profile_img) }}" alt="User thumbnail"></li>
+            {% else %}
+                <li><img class="avatar" src="{{ data['user'][i].avatar() }}" alt="User thumbnail"></li>
+            {% endif %}
+            {% if data['tutor'][i].telephone %}
+                <li>{{ data['tutor'][i].telephone }}</li>
+            {% endif %}
+        </ul>
+        </div>
+        <div class="col-9 justify-content-center">
+            <li><a href="{{ url_for('profile', tutor_id=data['tutor'][i].id) }}"><h3>{{ data['user'][i].first_name }} {{ data['user'][i].last_name }}</h3></a></li>
+            {% if data['tutor'][i].price %}
+                <li>$ {{ data['tutor'][i].price }}</li>
+            {% endif %}
+            <li>Reviews</li>
+            {% if data['tutor'][i].about_me %}
+                <li>{{ data['tutor'][i].about_me }}</li>
+            {% endif %}
+            <li>Categories:&nbsp</li>
+                {% for c in data['tutor'][i].get_categories() %}
+                <a href="{{ url_for('category', name=c.name) }}" class="btn btn-outline-success btn-sm">{{ c.name }}</a>&nbsp
+                {% endfor %}
         </div>
     </div>
+</div>
 {% endfor %}
 </div>
 {% if prev_url %}
