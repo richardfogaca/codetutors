@@ -1,7 +1,7 @@
 import os
 
 POSTGRES = {
-    'user': 'richard',
+    'user': 'richardfogaca',
     'pw': 'richard2906',
     'db': 'codetutors',
     'host': 'localhost',
@@ -9,13 +9,6 @@ POSTGRES = {
 }
 
 class Config(object):
-    POSTGRES = {
-        'user': 'richard',
-        'pw': 'richard2906',
-        'db': 'codetutors',
-        'host': 'localhost',
-        'port': '5432',
-    }
     SQLALCHEMY_DATABASE_URI = 'postgresql://%(user)s:\
         %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
     SQLALCHEMY_TRACK_MODIFICATIONS = False
