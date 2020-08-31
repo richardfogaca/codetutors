@@ -34,6 +34,9 @@
                 <ul>
                     <li><a href="{{ url_for('change_password') }}">Change password</a></li>
                     <li><a href="{{ url_for('following') }}">Following</a></li>
+                    {% if is_tutor %}
+                    <a href="{{ url_for('edit_profile') }}">Edit your profile</a> 
+                    {% endif %}
                 </ul>
             </div>
         </div>

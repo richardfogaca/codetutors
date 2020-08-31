@@ -221,13 +221,13 @@ def edit_profile():
 
             # saving the filename into users.profile_img
             user.profile_img = name + file_extension
-        if profile_form.validate_on_submit() and profile_form.save.data:
+        if profile_form.validate_on_submit() and profile_form.save.data and profile_form.about_me.data:
             current_user.about_me = profile_form.about_me.data
         db.session.commit()
         flash('Your changes have been saved.', 'success')
         return redirect(url_for('profile', tutor_id=tutor.id))
     elif request.method == 'GET':
-        profile_form.about_me.data = current_user.about_me
+        profile_form.about_me.data = tutor.about_me
     return render_template('edit_profile.html', user=user, profile_form=profile_form, image_form=image_form)
 
 @app.route('/dashboard', methods=['GET', 'POST'])
@@ -235,6 +235,7 @@ def edit_profile():
 def dashboard():
     id = current_user.id
     user = Users.query.get(id)
+    is_tutor = True if Tutors.query.filter_by(user_id=id).first() is not None else False
     image_form = UploadImageForm()
     logging.warning(image_form.errors)
     if request.method == 'POST':
@@ -257,7 +258,8 @@ def dashboard():
             db.session.commit()
             flash('Your photo has been saved.', 'success')
         return redirect(url_for('dashboard'))
-    return render_template('dashboard.html', user=user, image_form=image_form)
+    return render_template('dashboard.html', user=user, image_form=image_form, is_tutor=is_tutor)
+
 
 @app.route('/change_password', methods=['GET', 'POST'])
 @login_required
@@ -341,9 +343,9 @@ def is_following(user_id, tutor_id):
     is_following = user.is_following(tutor)
     return jsonify(is_following=is_following)
 
-@app.route('/add_category', methods=['GET', 'POST'])
+@app.route('/assign_category', methods=['GET', 'POST'])
 @login_required
-def add_category():
+def assign_category():
     user = Users.query.get(current_user.id)
     tutor = Tutors.query.filter_by(user_id=user.id).first()
 
@@ -359,7 +361,7 @@ def add_category():
         db.session.commit()
         flash('You have saved your categories')
         return redirect('index')
-    return render_template('add_category.html', form=form)
+    return render_template('assign_category.html', form=form)
 
 @app.route('/category/<name>')
 @login_required
