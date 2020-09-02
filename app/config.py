@@ -9,7 +9,7 @@ POSTGRES = {
 }
 
 class Config(object):
-    FLASK_APP='codetutors.py'
+    SQLALCHEMY_ECHO = True
     SQLALCHEMY_DATABASE_URI = 'postgresql://%(user)s:\
         %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -22,4 +22,4 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['rfncoding@gmail.com']
-    TUTORS_PER_PAGE = 1
+    TUTORS_PER_PAGE = 2

@@ -9,7 +9,7 @@ from time import time
 import jwt
 
 
-followers = db.Table('followers',
+followers_table = db.Table('followers_table',
     db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
     db.Column('followed_id', db.Integer, db.ForeignKey('tutors.id'))
 )
@@ -28,7 +28,7 @@ class Users(UserMixin, db.Model):
 
     # the many-to-many in this table is accessible via user.followed
     # In Tutors via tutor.followers
-    followed = db.relationship('Tutors', secondary=followers, lazy='dynamic',
+    followed = db.relationship('Tutors', secondary=followers_table, lazy='dynamic',
         backref=db.backref('followers', lazy='dynamic'))
 
     def set_password(self, password):
@@ -90,6 +90,7 @@ class Tutors(db.Model):
     def followers_total(self):
         return self.followers.count()
     
+
     def add_category(self, category):
         return self.category.append(category)
 

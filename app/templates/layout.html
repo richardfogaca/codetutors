@@ -55,7 +55,7 @@
                         <div class="dropdown-menu" aria-labelledby="dropdown_target">
                             <a href="{{ url_for('dashboard') }}" class="dropdown-item">Dashboard</a>
                             <a href="{{ url_for('change_password') }}" class="dropdown-item">Change password</a>
-                            <a href="{{ url_for('following') }}" class="dropdown-item">Following</a>
+                            <a href="{{ url_for('following', user_id=current_user.id) }}" class="dropdown-item">Following</a>
                         </div>
                     </li>
 

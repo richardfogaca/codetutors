@@ -11,9 +11,11 @@ from app.email import send_password_reset_email
 from app.models import *
 from app.utils import expand2square
 from manage import db
-from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm, ResetPasswordRequestForm, ResetPasswordForm, AddCategoryForm
+from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm, ResetPasswordRequestForm, ResetPasswordForm, AddCategoryForm, TestForm
 from PIL import Image
 import logging, os, time, hashlib, pathlib
+
+from os import path
 
 
 # this decorator function is executed before any other  view function
@@ -31,6 +33,12 @@ def index():
     Data is a dictonary containing User and Tutor info, inside each there's a list containing
     an instance of the respective class
     """
+    # TODO: I need to figure out a way of linking Users and Tutors from result,
+    # other than having to merge then via dict
+    
+    # TODO: I should have used a 1 to 1 relationship instead of foreign key in Users/Tutors
+    # This solves my problem of merging via dictionaries,
+    # because I'll be able to access Tutors from Users and vice versa
 
     page = request.args.get('page', 1, type=int)
     result = db.session.query(Users, Tutors).join(Tutors).paginate(
@@ -117,25 +125,27 @@ def profile(tutor_id):
     return render_template('profile.html', user=user, tutor=tutor, is_owner=is_owner, 
         is_following=is_following, is_tutor=is_tutor)
 
-@app.route('/following', methods=['GET'])
+@app.route('/following/<int:user_id>', methods=['GET'])
 @login_required
-def following():
+def following(user_id):
     """
-    Show all the Tutors the user is following (Join tables Tutors, Users and Followers)
+    Show all the Tutors the user is following
     """
-    id = current_user.id
-    user = Users.query.get(current_user.id)
-
+    # TODO: Test this and check if the result is correct
+    # Add an argument to the function and update the template links 
+    # id = current_user.id
+    user = Users.query.get(user_id)
+    
     page = request.args.get('page', 1, type=int)
 
-    # Joining tables Tutors, Users and Followers, filtering to bring all Tutors followed by the user id
-    result = db.session.query(Users, Tutors).join(Users, Tutors.followers).filter(Users.id==id
-        ).paginate(page, app.config['TUTORS_PER_PAGE'], False)
-
-    next_url = url_for('index', page=result.next_num) \
-        if result.has_next else None
-    prev_url = url_for('index', page=result.prev_num) \
-        if result.has_prev else None
+    result = db.session.query(Users, Tutors)\
+        .join(Tutors, Tutors.user_id==Users.id ,full=True)\
+        .join(followers_table, Tutors.id == followers_table.c.followed_id)\
+        .filter(user_id==followers_table.c.follower_id)\
+        .paginate(page, app.config['TUTORS_PER_PAGE'], False)
+    
+    next_url = url_for('index', page=result.next_num) if result.has_next else None
+    prev_url = url_for('index', page=result.prev_num) if result.has_prev else None
 
     data = {}
     data['user'] = []
@@ -155,21 +165,22 @@ def following():
 def followers(tutor_id):
     """
     Show all the followers of a Tutor
+    TODO: check again if the query is returning the correct results
     """
-    id = current_user.id
-    user = Users.query.get(current_user.id)
     try:
         tutor = Tutors.query.get(tutor_id)
     except:
         flash('Tutor not registered', 'danger')
         return render_template('404.html')
-
+    
     page = request.args.get('page', 1, type=int)
 
-    # Joining tables Tutors, Users and Followers, filtering to bring all Users following the Tutor
-    result = db.session.query(Users, Tutors).join(Tutors.followers).filter(Tutors.id==tutor_id
-        ).paginate(page, app.config['TUTORS_PER_PAGE'], False)
-
+    # TODO: Figure out a way of handling just Users from result
+    result = db.session.query(Users)\
+        .join(followers_table, followers_table.c.follower_id == Users.id)\
+        .filter(followers_table.c.followed_id == tutor.user_id)\
+        .paginate(page, app.config['TUTORS_PER_PAGE'], False)
+    
     next_url = url_for('index', page=result.next_num) \
         if result.has_next else None
     prev_url = url_for('index', page=result.prev_num) \
@@ -370,3 +381,14 @@ def category(name):
     List all Tutors related to that specific Category
     """
     pass
+
+@app.route('/test', methods=['GET', 'POST'])
+def test():
+    form = TestForm()
+    if request.method == 'POST':
+        files = form.files.data
+        for file in files:
+            print('test')
+            with open(path.join('some_path', file.filename), 'wb') as f:
+                f.write(file.read())
+    return render_template('test.html', form=form)

@@ -34,7 +34,7 @@
                 <a href="{{ url_for('followers', tutor_id=tutor.id) }}">Followers: </a><label id="followers-count">{{ tutor.followers_total() }}</label>
             </div>
             <div class="row">
-                <a href="{{ url_for('following') }}">Following: </a><label id="following-count">{{ user.following_total() }}</a>
+                <a href="{{ url_for('following', user_id=user.id) }}">Following: </a><label id="following-count">{{ user.following_total() }}</a>
             </div>
         </div>
     </div>

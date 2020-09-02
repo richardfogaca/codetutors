@@ -51,3 +51,12 @@ ul, li {
 .profiles-container {
 	padding: 10px 35px;
 }
+
+.password-container {
+	padding: 10px 35px;
+}
+
+.fields-container {
+	border: 1px solid #EBEBEB;
+	padding: 20px;
+}
