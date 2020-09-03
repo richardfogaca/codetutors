@@ -50,6 +50,11 @@ if not app.debug:
     app.logger.setLevel(logging.INFO)
     app.logger.info('Codetutors startup')
 
+from app.models import Categories
+def clever_function():
+    return Categories.get_all()
+
+app.jinja_env.globals.update(clever_function=clever_function)
 
 if __name__ == '__main__':
     app.run()

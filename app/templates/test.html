@@ -1,9 +1,0 @@
-{% extends 'layout.html' %}
-
-{% block content %}
-    <form action="/test" method="POST">
-    {{ form.hidden_tag() }}
-    {{ form.files }}
-    <input type="submit">
-    </form>
-{% endblock %}

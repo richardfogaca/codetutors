@@ -30,9 +30,9 @@
                         <span class="caret">Find Tutors</span>
                     </a>
                     <div class="dropdown-menu" aria-labelledby="dropdown_target">
-                        <a href="#" class="dropdown-item">Python</a>
-                        <a href="#" class="dropdown-item">Javascript</a>
-                        <a href="#" class="dropdown-item">HTML/CSS</a>
+                        {% for category in clever_function() %}
+                        <a href="{{ url_for('category', category_id=category.id) }}" class="dropdown-item">{{ category.name }}</a>
+                        {% endfor %}
                     </div>
                 </li>
                 <li class="nav-item">

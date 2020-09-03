@@ -26,8 +26,9 @@ class Users(UserMixin, db.Model):
     timestamp_joined = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(140), default=datetime.utcnow)
 
-    # the many-to-many in this table is accessible via user.followed
-    # In Tutors via tutor.followers
+    # one to one relationship (uselist False)
+    tutor = db.relationship('Tutors', backref='user', uselist=False)
+    
     followed = db.relationship('Tutors', secondary=followers_table, lazy='dynamic',
         backref=db.backref('followers', lazy='dynamic'))
 
@@ -63,6 +64,9 @@ class Users(UserMixin, db.Model):
             {'reset_password': self.id, 'exp': time() + expires_in},
             app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
 
+    def is_tutor(self):
+        return True if self.tutor is not None else False
+
     @staticmethod
     def verify_reset_password_token(token):
         try:
@@ -85,7 +89,8 @@ class Tutors(db.Model):
     telephone = db.Column(db.String(50), nullable=True)
 
     # Connecting this field to the association table. 
-    category = db.relationship("Categories", secondary="tutor_category")
+    categories = db.relationship('Categories', secondary="tutor_category", lazy='dynamic',
+        backref=db.backref('tutors', lazy='dynamic'))
 
     def followers_total(self):
         return self.followers.count()
@@ -97,7 +102,7 @@ class Tutors(db.Model):
     def get_categories(self):
         """ Returns all categories of the respective Tutor
         """
-        return db.session.query(Categories).join(Tutors.category).filter(Tutors.user_id==self.user_id).all()
+        return db.session.query(Categories).join(Tutors.categories).filter(Tutors.user_id==self.user_id).all()
 
     def __repr__(self):
         return '<Tutor id {}'.format(self.user_id) + ' , price {}>'.format(self.price)
@@ -119,8 +124,8 @@ class Categories(db.Model):
     __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True)
-    # Connecting this field to the association table. 
-    tutor = db.relationship('Tutors', secondary="tutor_category")
+    
+    # tutors = db.relationship('Tutors', secondary="tutor_category")
 
     @staticmethod
     def get_all():

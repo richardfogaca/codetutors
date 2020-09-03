@@ -27,7 +27,7 @@
                 {% endif %}
                 <b>Categories:&nbsp</b>
                 {% for c in tutor.get_categories() %}
-                <a href="{{ url_for('category', name=c.name) }}" class="btn btn-outline-success btn-sm">{{ c.name }}</a>&nbsp
+                <a href="{{ url_for('category', category_id=c.id) }}" class="btn btn-outline-success btn-sm">{{ c.name }}</a>&nbsp
                 {% endfor %}
             </div>
             <div class="row">

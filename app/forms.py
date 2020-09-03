@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from app.models import Categories
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectMultipleField, widgets, IntegerField, MultipleFileField, DateField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectMultipleField, widgets, IntegerField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 from app.models import Users
 from app import photos
@@ -56,12 +56,3 @@ class MultiCheckboxField(SelectMultipleField):
 class AddCategoryForm(FlaskForm):
     category = MultiCheckboxField('Programming Languages', coerce=int)
     save = SubmitField('Save')
-    
-class TestForm(FlaskForm):
-    user_id = IntegerField('user_id', validators=[DataRequired()])
-    name = StringField('name', validators=[DataRequired()])
-    description = StringField('description', validators=[DataRequired()])
-    category_id = IntegerField('category_id', validators=[DataRequired()])
-    date_of_purchase = DateField('date_of_purchase', validators=[DataRequired()])
-    guarantee_period = IntegerField('guarantee_period', validators=[DataRequired()])
-    files = MultipleFileField('files')

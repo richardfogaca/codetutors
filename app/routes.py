@@ -11,7 +11,7 @@ from app.email import send_password_reset_email
 from app.models import *
 from app.utils import expand2square
 from manage import db
-from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm, ResetPasswordRequestForm, ResetPasswordForm, AddCategoryForm, TestForm
+from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm, ResetPasswordRequestForm, ResetPasswordForm, AddCategoryForm
 from PIL import Image
 import logging, os, time, hashlib, pathlib
 
@@ -33,32 +33,14 @@ def index():
     Data is a dictonary containing User and Tutor info, inside each there's a list containing
     an instance of the respective class
     """
-    # TODO: I need to figure out a way of linking Users and Tutors from result,
-    # other than having to merge then via dict
-    
-    # TODO: I should have used a 1 to 1 relationship instead of foreign key in Users/Tutors
-    # This solves my problem of merging via dictionaries,
-    # because I'll be able to access Tutors from Users and vice versa
-
     page = request.args.get('page', 1, type=int)
-    result = db.session.query(Users, Tutors).join(Tutors).paginate(
-        page, app.config['TUTORS_PER_PAGE'], False)
-    next_url = url_for('index', page=result.next_num) \
-        if result.has_next else None
-    prev_url = url_for('index', page=result.prev_num) \
-        if result.has_prev else None
+    result = db.session.query(Users)\
+        .join(Tutors)\
+        .paginate(page, app.config['TUTORS_PER_PAGE'], False)
+    next_url = url_for('index', page=result.next_num) if result.has_next else None
+    prev_url = url_for('index', page=result.prev_num) if result.has_prev else None
 
-    data = {}
-    data['user'] = []
-    data['tutor'] = []
-    rows = len(result.items)
-
-    for i in range(rows):
-        data['user'].append(result.items[i][0])
-        data['tutor'].append(result.items[i][1])
-
-    return render_template('index.html', title='Home', 
-                        data=data, rows=rows, 
+    return render_template('index.html', title='CodeTutors Home', result=result.items, 
                         next_url=next_url, prev_url=prev_url)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -103,15 +85,12 @@ def register():
 @app.route('/profile/<int:tutor_id>', methods=['GET'])
 def profile(tutor_id):
     """Only show Tutors, won't be displaying users profiles"""
-    
     try:
         tutor = Tutors.query.get(tutor_id)
     except NoResultFound:
         flash("Tutor not registered", "danger")
-
-    # get the user from tutor
-    user = Users.query.get(tutor.user_id)
     
+    user = Users.query.get(tutor.user_id)
     if user is None or tutor is None:
         is_tutor = False
         flash('Tutor not registered', 'danger')
@@ -131,14 +110,9 @@ def following(user_id):
     """
     Show all the Tutors the user is following
     """
-    # TODO: Test this and check if the result is correct
-    # Add an argument to the function and update the template links 
-    # id = current_user.id
     user = Users.query.get(user_id)
-    
     page = request.args.get('page', 1, type=int)
-
-    result = db.session.query(Users, Tutors)\
+    result = db.session.query(Users)\
         .join(Tutors, Tutors.user_id==Users.id ,full=True)\
         .join(followers_table, Tutors.id == followers_table.c.followed_id)\
         .filter(user_id==followers_table.c.follower_id)\
@@ -147,17 +121,7 @@ def following(user_id):
     next_url = url_for('index', page=result.next_num) if result.has_next else None
     prev_url = url_for('index', page=result.prev_num) if result.has_prev else None
 
-    data = {}
-    data['user'] = []
-    data['tutor'] = []
-    rows = len(result.items)
-
-    for i in range(rows):
-        data['user'].append(result.items[i][0])
-        data['tutor'].append(result.items[i][1])
-
-    return render_template('index.html', title='Following', 
-                        data=data, rows=rows,
+    return render_template('index.html', title='Following', result=result.items,
                         next_url=next_url, prev_url=prev_url)
 
 @app.route('/followers/<int:tutor_id>', methods=['GET'])
@@ -165,7 +129,6 @@ def following(user_id):
 def followers(tutor_id):
     """
     Show all the followers of a Tutor
-    TODO: check again if the query is returning the correct results
     """
     try:
         tutor = Tutors.query.get(tutor_id)
@@ -175,7 +138,6 @@ def followers(tutor_id):
     
     page = request.args.get('page', 1, type=int)
 
-    # TODO: Figure out a way of handling just Users from result
     result = db.session.query(Users)\
         .join(followers_table, followers_table.c.follower_id == Users.id)\
         .filter(followers_table.c.followed_id == tutor.user_id)\
@@ -186,17 +148,7 @@ def followers(tutor_id):
     prev_url = url_for('index', page=result.prev_num) \
         if result.has_prev else None
 
-    data = {}
-    data['user'] = []
-    data['tutor'] = []
-    rows = len(result.items)
-
-    for i in range(rows):
-        data['user'].append(result.items[i][0])
-        data['tutor'].append(result.items[i][1])
-
-    return render_template('index.html', title='Following', 
-                        data=data, rows=rows,
+    return render_template('index.html', title='Followers', result=result.items,
                         next_url=next_url, prev_url=prev_url)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -239,7 +191,8 @@ def edit_profile():
         return redirect(url_for('profile', tutor_id=tutor.id))
     elif request.method == 'GET':
         profile_form.about_me.data = tutor.about_me
-    return render_template('edit_profile.html', user=user, profile_form=profile_form, image_form=image_form)
+    return render_template('edit_profile.html', title='Edit profile',
+                           user=user, profile_form=profile_form, image_form=image_form)
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
@@ -269,7 +222,8 @@ def dashboard():
             db.session.commit()
             flash('Your photo has been saved.', 'success')
         return redirect(url_for('dashboard'))
-    return render_template('dashboard.html', user=user, image_form=image_form, is_tutor=is_tutor)
+    return render_template('dashboard.html', title='Dashboard',
+                        user=user, image_form=image_form, is_tutor=is_tutor)
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
@@ -286,7 +240,7 @@ def change_password():
             else:
                 flash('Please review your password and try again')
         return redirect(url_for('dashboard'))
-    return render_template('change_password.html', user=user, password_form=password_form)
+    return render_template('change_password.html', title='Reset Password' ,user=user, password_form=password_form)
 
 @app.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
@@ -315,7 +269,7 @@ def reset_password(token):
         db.session.commit()
         flash('Your password has been reset.')
         return redirect(url_for('login'))
-    return render_template('reset_password.html', form=form)
+    return render_template('reset_password.html', title='Reset Password', form=form)
 
 @app.route('/display/<filename>')
 @login_required
@@ -372,23 +326,26 @@ def assign_category():
         db.session.commit()
         flash('You have saved your categories')
         return redirect('index')
-    return render_template('assign_category.html', form=form)
+    return render_template('assign_category.html', title='Assign Categories', form=form)
 
-@app.route('/category/<name>')
+@app.route('/category/<int:category_id>')
 @login_required
-def category(name):
+def category(category_id):
     """
     List all Tutors related to that specific Category
     """
-    pass
-
-@app.route('/test', methods=['GET', 'POST'])
-def test():
-    form = TestForm()
-    if request.method == 'POST':
-        files = form.files.data
-        for file in files:
-            print('test')
-            with open(path.join('some_path', file.filename), 'wb') as f:
-                f.write(file.read())
-    return render_template('test.html', form=form)
+    page = request.args.get('page', 1, type=int)
+    result = db.session.query(Users)\
+        .join(Tutors)\
+        .join(tutor_category, tutor_category.c.tutor_id == Tutors.id)\
+        .join(Categories, Categories.id == tutor_category.c.category_id)\
+        .filter(Categories.id==category_id)\
+        .paginate(page, app.config['TUTORS_PER_PAGE'], False)
+    next_url = url_for('index', page=result.next_num) if result.has_next else None
+    prev_url = url_for('index', page=result.prev_num) if result.has_prev else None
+    
+    category_name = Categories.query.get(category_id).name
+    title = 'CodeTutors [' + category_name + ']' 
+    
+    return render_template('index.html', title=title, result=result.items, 
+                        next_url=next_url, prev_url=prev_url)
