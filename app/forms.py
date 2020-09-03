@@ -56,3 +56,8 @@ class MultiCheckboxField(SelectMultipleField):
 class AddCategoryForm(FlaskForm):
     category = MultiCheckboxField('Programming Languages', coerce=int)
     save = SubmitField('Save')
+
+class AddReviewForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(min=1, max=70)])
+    rating = IntegerField('Rating', validators=[DataRequired(), Length(min=1, max=5)])
+    comment = StringField('Comment', validators=[Optional(), Length(min=1, max=1500)])

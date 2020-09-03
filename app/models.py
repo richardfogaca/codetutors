@@ -28,9 +28,9 @@ class Users(UserMixin, db.Model):
 
     # one to one relationship (uselist False)
     tutor = db.relationship('Tutors', backref='user', uselist=False)
-    
     followed = db.relationship('Tutors', secondary=followers_table, lazy='dynamic',
         backref=db.backref('followers', lazy='dynamic'))
+    reviews = db.relationship('Reviews', backref='user', uselist=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -91,6 +91,7 @@ class Tutors(db.Model):
     # Connecting this field to the association table. 
     categories = db.relationship('Categories', secondary="tutor_category", lazy='dynamic',
         backref=db.backref('tutors', lazy='dynamic'))
+    reviews = db.relationship('Reviews', backref='tutor', uselist=True)
 
     def followers_total(self):
         return self.followers.count()
@@ -111,8 +112,11 @@ class Reviews(db.Model):
     __tablename__ = 'reviews'
     __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
+    
+    # Create a relationship for these columns
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     tutor_id = db.Column(db.Integer, db.ForeignKey('tutors.id'))
+    
     title = db.Column(db.String(70), nullable=True)
     rating = db.Column(db.Integer, index=True)
     comment = db.Column(db.String(1500), nullable=True)
