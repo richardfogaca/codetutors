@@ -84,7 +84,7 @@ class Tutors(db.Model):
     __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    about_me = db.Column(db.String(140), nullable=True)
+    about_me = db.Column(db.String(3000), nullable=True)
     price = db.Column(db.Float)
     telephone = db.Column(db.String(50), nullable=True)
 
@@ -114,6 +114,7 @@ class Reviews(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     tutor_id = db.Column(db.Integer, db.ForeignKey('tutors.id'))
     rating = db.Column(db.Integer, index=True)
+    comment = db.Column(db.String(1500), nullable=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def __repr__(self):

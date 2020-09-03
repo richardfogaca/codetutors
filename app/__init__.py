@@ -53,7 +53,6 @@ if not app.debug:
 from app.models import Categories
 def clever_function():
     return Categories.get_all()
-
 app.jinja_env.globals.update(clever_function=clever_function)
 
 if __name__ == '__main__':
