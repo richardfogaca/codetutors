@@ -113,6 +113,7 @@ class Reviews(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     tutor_id = db.Column(db.Integer, db.ForeignKey('tutors.id'))
+    title = db.Column(db.String(70), nullable=True)
     rating = db.Column(db.Integer, index=True)
     comment = db.Column(db.String(1500), nullable=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
