@@ -21,10 +21,15 @@
             <div class="row">
                 <h1>{{ user.first_name }} {{ user.last_name }}</h1><br>
             </div>
+            <div class="row pt-2">
+                <li>Rating: {{ user.tutor.get_average_ratings() }} ({{ user.tutor.count_ratings() }}) reviews</li>
+            </div>
             <div class="row pt-3">
-                {% if user.about_me %}
-                {{ user.about_me.label }} {{ user.about_me }}
+                {% if tutor.about_me %}
+                {{ tutor.about_me.label }} {{ tutor.about_me }}
                 {% endif %}
+            </div>
+            <div class="row pt-2 pb-4">
                 <b>Categories:&nbsp</b>
                 {% for c in tutor.get_categories() %}
                 <a href="{{ url_for('category', category_id=c.id) }}" class="btn btn-outline-success btn-sm">{{ c.name }}</a>&nbsp
@@ -36,11 +41,37 @@
             <div class="row">
                 <a href="{{ url_for('following', user_id=user.id) }}">Following: </a><label id="following-count">{{ user.following_total() }}</a>
             </div>
+            <div class="row pt-4 pb-3">
+                <h4>Reviews:</h4>
+            </div>
+            {% for review in result %}
+            <div class="row pl-2 pb-3">
+                Name: {{ review.user.first_name }}<br>
+                Rating: {{ review.rating }}<br>
+                Title: {{ review.title }}<br>
+                Comment: {{ review.comment }}<br>
+            </div>
+            {% endfor %}
+
+            {% if not is_owner %}
+                {% if current_user.has_rated_tutor(tutor) %}
+                <a href="{{ url_for('add_review', tutor_id=tutor.id) }}">Edit review</a><br>
+                {% else %}
+                <a href="{{ url_for('add_review', tutor_id=tutor.id) }}">Write a review<a/><br>
+                {% endif %}
+            {% endif %}
+
+            {% if prev_url %}
+            <a href="{{ prev_url }}">Previous page</a>
+            {% endif %}
+            {% if next_url %}
+            <a href="{{ next_url }}">Next page</a>
+            {% endif %}
         </div>
     </div>
     <div class="row">
         <div class="col-3">
-            {% if is_owner and is_tutor %}
+            {% if is_owner %}
             <a href="{{ url_for('edit_profile') }}">Edit your profile</a>
             {% else %}
                 <a href="{{ url_for('follow_unfollow', tutor_id=tutor.id) }}" id="follow-unfollow-btn"></a>

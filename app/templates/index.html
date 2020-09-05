@@ -34,7 +34,7 @@
                 <li>$ {{ user.tutor.price }}</li>
             {% endif %}
             {% if user.is_tutor() %}
-            <li>Reviews</li>
+            <li>Rating: {{ user.tutor.get_average_ratings() }} ({{ user.tutor.count_ratings() }}) reviews</li>
             {% endif %}
             {% if user.is_tutor() and user.tutor.about_me %}
                 <li>{{ user.tutor.about_me }}</li>

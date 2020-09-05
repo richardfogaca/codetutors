@@ -23,3 +23,4 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['rfncoding@gmail.com']
     TUTORS_PER_PAGE = 2
+    REVIEWS_PER_PAGE = 1

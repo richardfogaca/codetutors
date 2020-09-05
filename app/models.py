@@ -6,6 +6,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
 from time import time
+from sqlalchemy import func
 import jwt
 
 
@@ -67,6 +68,12 @@ class Users(UserMixin, db.Model):
     def is_tutor(self):
         return True if self.tutor is not None else False
 
+    def has_rated_tutor(self, tutor):
+        result = db.session.query(Reviews)\
+            .filter(Reviews.user_id==self.id, Reviews.tutor_id==tutor.id)\
+            .first()
+        return True if result is not None else False
+
     @staticmethod
     def verify_reset_password_token(token):
         try:
@@ -104,6 +111,21 @@ class Tutors(db.Model):
         """ Returns all categories of the respective Tutor
         """
         return db.session.query(Categories).join(Tutors.categories).filter(Tutors.user_id==self.user_id).all()
+
+    def count_ratings(self):
+        return db.session.query(func.count(Reviews.rating))\
+            .group_by(Reviews.tutor_id)\
+            .filter(Reviews.tutor_id==self.id)\
+            .first()[0]
+            
+    def get_average_ratings(self):
+        """
+        Returns an average all ratings of the tutor, rounded to 1 decimal place
+        """
+        return round(db.session.query(func.avg(Reviews.rating))\
+            .group_by(Reviews.tutor_id)\
+            .filter(Reviews.tutor_id==self.id)\
+            .first()[0], 1)
 
     def __repr__(self):
         return '<Tutor id {}'.format(self.user_id) + ' , price {}>'.format(self.price)

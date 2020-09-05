@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h3>Write a review</h3>
+<div class="container-fluid">
+    <form action="{{ url_for('add_review', tutor_id=tutor.id) }}" method="POST">
+        {{ form.csrf_token() }}
+        <div class="row p-3">
+            {{ form.title.label }}
+            {{ form.title }}
+            {% for error in form.title.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+        <div class="row p-3">
+            {{ form.rating.label }}
+            {{ form.rating }}
+            {% for error in form.rating.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+        <div class="row p-3">
+            {{ form.comment.label }}
+            {{ form.comment }}
+            {% for error in form.comment.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+        <div class="row p-3">
+            {{ form.submit }}
+        </div>
+    </form>
+</div>
+
+{% endblock %}

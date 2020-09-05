@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from app.models import Categories
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectMultipleField, widgets, IntegerField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length, Optional, NumberRange
 from app.models import Users
 from app import photos
 
@@ -59,5 +59,6 @@ class AddCategoryForm(FlaskForm):
 
 class AddReviewForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=1, max=70)])
-    rating = IntegerField('Rating', validators=[DataRequired(), Length(min=1, max=5)])
+    rating = IntegerField('Rating', validators=[DataRequired(), NumberRange(min=1, max=5)])
     comment = StringField('Comment', validators=[Optional(), Length(min=1, max=1500)])
+    submit = SubmitField('Submit')

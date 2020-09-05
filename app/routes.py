@@ -11,7 +11,7 @@ from app.email import send_password_reset_email
 from app.models import *
 from app.utils import expand2square
 from manage import db
-from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm, ResetPasswordRequestForm, ResetPasswordForm, AddCategoryForm
+from .forms import LoginForm, RegistrationForm, EditProfileForm, UploadImageForm, ChangePasswordForm, ResetPasswordRequestForm, ResetPasswordForm, AddCategoryForm, AddReviewForm
 from PIL import Image
 import logging, os, time, hashlib, pathlib
 
@@ -30,8 +30,6 @@ def before_request():
 def index():
     """
     Shows all Tutors on the index page. 
-    Data is a dictonary containing User and Tutor info, inside each there's a list containing
-    an instance of the respective class
     """
     page = request.args.get('page', 1, type=int)
     result = db.session.query(Users)\
@@ -91,18 +89,23 @@ def profile(tutor_id):
         flash("Tutor not registered", "danger")
     
     user = Users.query.get(tutor.user_id)
-    if user is None or tutor is None:
-        is_tutor = False
+    if user is None:
         flash('Tutor not registered', 'danger')
         return render_template('404.html')
-    else:
-        is_tutor = True
-
+    
+    page = request.args.get('page', 1, type=int)
+    result = Reviews.query.filter(Reviews.tutor_id==tutor_id)\
+        .paginate(page, app.config['REVIEWS_PER_PAGE'], False)
+    
+    next_url = url_for('profile', tutor_id=tutor_id ,page=result.next_num) if result.has_next else None
+    prev_url = url_for('profile', tutor_id=tutor_id ,page=result.prev_num) if result.has_prev else None
+    
     is_owner = True if user == current_user else False
     is_following = True if user.is_following(tutor) else False
     
     return render_template('profile.html', user=user, tutor=tutor, is_owner=is_owner, 
-        is_following=is_following, is_tutor=is_tutor)
+                        is_following=is_following, result=result.items, 
+                        next_url=next_url, prev_url=prev_url)
 
 @app.route('/following/<int:user_id>', methods=['GET'])
 @login_required
@@ -308,6 +311,14 @@ def is_following(user_id, tutor_id):
     is_following = user.is_following(tutor)
     return jsonify(is_following=is_following)
 
+@app.route('/get_rating/<int:tutor_id>')
+def get_rating(tutor_id):
+    try:
+        tutor = Tutors.query.get(tutor_id)
+    except NoResultFound:
+        return jsonify(error="Tutor not found", code=404)
+    pass
+
 @app.route('/assign_category', methods=['GET', 'POST'])
 @login_required
 def assign_category():
@@ -349,3 +360,43 @@ def category(category_id):
     
     return render_template('index.html', title=title, result=result.items, 
                         next_url=next_url, prev_url=prev_url)
+    
+@app.route('/add_review/<int:tutor_id>', methods=['GET', 'POST'])
+@login_required
+def add_review(tutor_id):
+    user = Users.query.get(current_user.id)
+    tutor = Tutors.query.get(tutor_id)
+    form = AddReviewForm()
+    has_rated = user.has_rated_tutor(tutor)
+    review = db.session.query(Reviews).filter(Reviews.user==user, Reviews.tutor==tutor).first()
+
+    if request.method == 'GET' and has_rated:
+        form.title.data = review.title
+        form.rating.data = review.rating
+        form.comment.data = review.comment
+        
+    elif request.method == 'POST' and form.validate_on_submit():
+        if user.id == tutor.user_id:
+            flash('You can\'t review yourself', 'danger')
+            redirect(url_for('index'))
+        title = form.title.data
+        rating = form.rating.data
+        comment = form.comment.data
+        if rating < 1 or rating > 5:
+            flash("Your rating must be from 1 to 5")
+            return redirect(url_for('add_review'))
+        comment = form.comment.data
+        if review is None:
+            review = Reviews(title=title, rating=rating, comment=comment, user=user, tutor=tutor)
+            db.session.add(review)
+            db.session.commit()
+            flash('Your review has been submited', 'success')
+        else:
+            review.title = title
+            review.rating = rating
+            review.comment = comment
+            db.session.commit()
+            flash('Your review has been edited', 'success')
+        return redirect(url_for('index'))
+    
+    return render_template('add_review.html', form=form, tutor=tutor)
