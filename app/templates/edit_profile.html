@@ -4,6 +4,8 @@
     <script src="{{ url_for('static',filename='/js/main.js') }}"></script>
 {% endblock %}
 
+{% block title %} {{ title }} {% endblock %}
+
 {% block content %}
     <div class="container-fluid mt-3">
         <div class="row">
@@ -22,6 +24,9 @@
                 <div class="input-group-append">
                     {{ image_form.upload(class="input-group-text") }}
                 </div>
+                {% for error in image_form.profile_img.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
             </div>
             <div class="col-8 pl-3 pt-3">
                 <div class="row">
@@ -31,6 +36,9 @@
                     <form action="{{ url_for('edit_profile') }}" method="POST">
                         {{ profile_form.csrf_token() }}
                         {{ profile_form.about_me.label }} {{ profile_form.about_me(cols="60", rows="5") }}
+                        {% for error in profile_form.about_me.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
                         {{ profile_form.save }}
                     </form>
                 </div>

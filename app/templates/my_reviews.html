@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+{% for review in result %}
+
+<div class="row">
+    Rating: {{ review.rating }}<br>
+    Title: {{ review.title }}<br>
+    Comment: {{ review.comment }}<br>
+    <a href="{{ url_for('add_review', tutor_id=review.tutor.id) }}">Edit review</a><br>
+    {% if prev_url %}
+    <a href="{{ prev_url }}">Previous page</a><br>
+    {% endif %}
+    {% if next_url %}
+    <a href="{{ next_url }}">Next page</a><br>
+    {% endif %}
+</div>
+<br>
+
+{% endfor %}
+</div>
+
+{% endblock %}

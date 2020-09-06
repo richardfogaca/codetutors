@@ -1,11 +1,16 @@
 {% extends "layout.html" %}
 
+{% block title %} {{ title }} {% endblock %}
+
 {% block content %}
 <form action="{{ url_for('assign_category') }}" method="post">
 
 {{ form.hidden_tag() }}
 {{ form.category.label }}
 {{ form.category }}
+{% for error in form.category.errors %}
+    <span style="color: red;">[{{ error }}]</span>
+{% endfor %}
 {{ form.save() }}
 
 </form>

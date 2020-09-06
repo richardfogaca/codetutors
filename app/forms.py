@@ -60,5 +60,5 @@ class AddCategoryForm(FlaskForm):
 class AddReviewForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=1, max=70)])
     rating = IntegerField('Rating', validators=[DataRequired(), NumberRange(min=1, max=5)])
-    comment = StringField('Comment', validators=[Optional(), Length(min=1, max=1500)])
+    comment = TextAreaField('Comment', validators=[Optional(), Length(min=1, max=1500)])
     submit = SubmitField('Submit')

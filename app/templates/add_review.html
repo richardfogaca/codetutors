@@ -1,5 +1,7 @@
 {% extends 'layout.html' %}
 
+{% block title %} {{ title }} {% endblock %}
+
 {% block content %}
 
 <h3>Write a review</h3>
@@ -22,7 +24,7 @@
         </div>
         <div class="row p-3">
             {{ form.comment.label }}
-            {{ form.comment }}
+            {{ form.comment(cols="70", rows="8") }}
             {% for error in form.comment.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}

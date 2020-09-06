@@ -4,6 +4,8 @@
 <script src="{{ url_for('static',filename='js/main.js') }}"> </script>
 {% endblock %}
 
+{% block title %} {{ title }} {% endblock %}
+
 {% block content %}
 
 <input id="user-id" name="user-id" type="hidden" value="{{current_user.get_id()}}">

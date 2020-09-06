@@ -38,7 +38,7 @@ def index():
     next_url = url_for('index', page=result.next_num) if result.has_next else None
     prev_url = url_for('index', page=result.prev_num) if result.has_prev else None
 
-    return render_template('index.html', title='CodeTutors Home', result=result.items, 
+    return render_template('index.html', title='CodeTutors - Home', result=result.items, 
                         next_url=next_url, prev_url=prev_url)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -57,7 +57,7 @@ def login():
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
-    return render_template('login.html', title='Sign In', form=form)
+    return render_template('login.html', title='CodeTutors - Sign In', form=form)
 
 @app.route('/logout')
 def logout():
@@ -78,7 +78,7 @@ def register():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+    return render_template('register.html', title='CodeTutors - Register', form=form)
 
 @app.route('/profile/<int:tutor_id>', methods=['GET'])
 def profile(tutor_id):
@@ -102,8 +102,9 @@ def profile(tutor_id):
     
     is_owner = True if user == current_user else False
     is_following = True if user.is_following(tutor) else False
+    title = tutor.user.first_name + ' ' + tutor.user.last_name + ' - CodeTutors'
     
-    return render_template('profile.html', user=user, tutor=tutor, is_owner=is_owner, 
+    return render_template('profile.html', title=title ,user=user, tutor=tutor, is_owner=is_owner, 
                         is_following=is_following, result=result.items, 
                         next_url=next_url, prev_url=prev_url)
 
@@ -124,7 +125,7 @@ def following(user_id):
     next_url = url_for('index', page=result.next_num) if result.has_next else None
     prev_url = url_for('index', page=result.prev_num) if result.has_prev else None
 
-    return render_template('index.html', title='Following', result=result.items,
+    return render_template('index.html', title='CodeTutors - Following', result=result.items,
                         next_url=next_url, prev_url=prev_url)
 
 @app.route('/followers/<int:tutor_id>', methods=['GET'])
@@ -151,7 +152,7 @@ def followers(tutor_id):
     prev_url = url_for('index', page=result.prev_num) \
         if result.has_prev else None
 
-    return render_template('index.html', title='Followers', result=result.items,
+    return render_template('index.html', title='CodeTutors - Followers', result=result.items,
                         next_url=next_url, prev_url=prev_url)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -194,7 +195,7 @@ def edit_profile():
         return redirect(url_for('profile', tutor_id=tutor.id))
     elif request.method == 'GET':
         profile_form.about_me.data = tutor.about_me
-    return render_template('edit_profile.html', title='Edit profile',
+    return render_template('edit_profile.html', title='CodeTutors - Edit profile',
                            user=user, profile_form=profile_form, image_form=image_form)
 
 @app.route('/dashboard', methods=['GET', 'POST'])
@@ -225,7 +226,7 @@ def dashboard():
             db.session.commit()
             flash('Your photo has been saved.', 'success')
         return redirect(url_for('dashboard'))
-    return render_template('dashboard.html', title='Dashboard',
+    return render_template('dashboard.html', title='CodeTutors - Dashboard',
                         user=user, image_form=image_form, is_tutor=is_tutor)
 
 
@@ -243,7 +244,7 @@ def change_password():
             else:
                 flash('Please review your password and try again')
         return redirect(url_for('dashboard'))
-    return render_template('change_password.html', title='Reset Password' ,user=user, password_form=password_form)
+    return render_template('change_password.html', title='CodeTutors - Reset Password' ,user=user, password_form=password_form)
 
 @app.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
@@ -257,7 +258,7 @@ def reset_password_request():
         flash('Check your email for the instructions to reset your password')
         return redirect(url_for('login'))
     return render_template('reset_password_request.html',
-                           title='Reset Password', form=form)
+                           title='CodeTutors - Reset Password', form=form)
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
@@ -272,7 +273,7 @@ def reset_password(token):
         db.session.commit()
         flash('Your password has been reset.')
         return redirect(url_for('login'))
-    return render_template('reset_password.html', title='Reset Password', form=form)
+    return render_template('reset_password.html', title='CodeTutors - Reset Password', form=form)
 
 @app.route('/display/<filename>')
 @login_required
@@ -337,7 +338,7 @@ def assign_category():
         db.session.commit()
         flash('You have saved your categories')
         return redirect('index')
-    return render_template('assign_category.html', title='Assign Categories', form=form)
+    return render_template('assign_category.html', title='CodeTutors - Assign Categories', form=form)
 
 @app.route('/category/<int:category_id>')
 @login_required
@@ -399,4 +400,24 @@ def add_review(tutor_id):
             flash('Your review has been edited', 'success')
         return redirect(url_for('index'))
     
-    return render_template('add_review.html', form=form, tutor=tutor)
+    return render_template('add_review.html', title="CodeTutors - Review your Tutor" ,form=form, tutor=tutor)
+
+@app.route('/my_reviews')
+@login_required
+def my_reviews():
+    user = Users.query.get(current_user.id)
+    page = request.args.get('page', 1, type=int)
+    result = Reviews.query.filter(Reviews.user==user).paginate(page, app.config['REVIEWS_PER_PAGE'], False)
+    next_url = url_for('my_reviews', page=result.next_num) if result.has_next else None
+    prev_url = url_for('my_reviews', page=result.prev_num) if result.has_prev else None
+    
+    return render_template('my_reviews.html', title="CodeTutors - My Reviews" ,result=result.items, next_url=next_url, prev_url=prev_url)
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('500.html'), 500
