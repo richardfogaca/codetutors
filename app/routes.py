@@ -412,12 +412,3 @@ def my_reviews():
     prev_url = url_for('my_reviews', page=result.prev_num) if result.has_prev else None
     
     return render_template('my_reviews.html', title="CodeTutors - My Reviews" ,result=result.items, next_url=next_url, prev_url=prev_url)
-
-@app.errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html'), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    db.session.rollback()
-    return render_template('500.html'), 500

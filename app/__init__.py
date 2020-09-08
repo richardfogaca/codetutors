@@ -16,6 +16,9 @@ app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(os.path.dirname(app.instance_p
 mail = Mail(app)
 bootstrap = Bootstrap(app)
 
+from app.errors import bp as errors_bp
+app.register_blueprint(errors_bp)
+
 login = LoginManager(app)
 login.login_view = 'login' # connecting the login view function to the login instance
 
@@ -60,4 +63,4 @@ app.jinja_env.globals.update(clever_function=clever_function)
 if __name__ == '__main__':
     app.run()
 
-from app import routes, models, errors
+from app import routes, models
