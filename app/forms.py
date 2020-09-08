@@ -30,7 +30,7 @@ class UploadImageForm(FlaskForm):
     upload = SubmitField('Upload')
     
 class EditProfileForm(FlaskForm):
-    about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
+    about_me = TextAreaField('About me', validators=[Length(min=0, max=3000)])
     save = SubmitField('Save')
 
 class ChangePasswordForm(FlaskForm):
