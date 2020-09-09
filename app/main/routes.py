@@ -6,6 +6,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from app import db
+from app.main.forms import MessageForm
 from app.models import *
 from app.utils import expand2square
 from .forms import EditProfileForm, UploadImageForm, AddCategoryForm, AddReviewForm
@@ -323,3 +324,34 @@ def my_reviews():
     prev_url = url_for('main.my_reviews', page=result.prev_num) if result.has_prev else None
     
     return render_template('my_reviews.html', title="CodeTutors - My Reviews" ,result=result.items, next_url=next_url, prev_url=prev_url)
+
+@bp.route('/send_message/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def send_message(user_id):
+    user = Users.query.filter_by(id=user_id).first_or_404()
+    form = MessageForm()
+    if form.validate_on_submit():
+        msg = Messages(author=current_user, recipient=user,
+                      body=form.message.data)
+        db.session.add(msg)
+        db.session.commit()
+        flash('Your message has been sent.')
+        return redirect(url_for('main.messages'))
+    return render_template('send_message.html', title='CodeTutors - Send Message',
+                           form=form, recipient=user.first_name)
+    
+@bp.route('/messages')
+@login_required
+def messages():
+    current_user.last_message_read_time = datetime.utcnow()
+    db.session.commit()
+    page = request.args.get('page', 1, type=int)
+    messages = current_user.messages_received.order_by(
+        Messages.timestamp.desc()).paginate(
+            page, current_app.config['MESSAGES_PER_PAGE'], False)
+    next_url = url_for('main.messages', page=messages.next_num) \
+        if messages.has_next else None
+    prev_url = url_for('main.messages', page=messages.prev_num) \
+        if messages.has_prev else None
+    return render_template('messages.html', title='CodeTutors - Messages', messages=messages.items,
+                           next_url=next_url, prev_url=prev_url)

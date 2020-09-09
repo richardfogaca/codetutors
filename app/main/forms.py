@@ -28,3 +28,8 @@ class AddReviewForm(FlaskForm):
     rating = IntegerField('Rating', validators=[DataRequired(), NumberRange(min=1, max=5)])
     comment = TextAreaField('Comment', validators=[Optional(), Length(min=1, max=1500)])
     submit = SubmitField('Submit')
+    
+class MessageForm(FlaskForm):
+    message = TextAreaField('Message', validators=[
+        DataRequired(), Length(min=0, max=140)])
+    submit = SubmitField('Submit')

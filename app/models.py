@@ -31,6 +31,14 @@ class Users(UserMixin, db.Model):
     followed = db.relationship('Tutors', secondary=followers_table, lazy='dynamic',
         backref=db.backref('followers', lazy='dynamic'))
     reviews = db.relationship('Reviews', backref='user', uselist=True)
+    
+    messages_sent = db.relationship('Messages',
+                                    foreign_keys='Messages.sender_id',
+                                    backref='author', lazy='dynamic')
+    messages_received = db.relationship('Messages',
+                                        foreign_keys='Messages.recipient_id',
+                                        backref='recipient', lazy='dynamic')
+    last_message_read_time = db.Column(db.DateTime)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -72,6 +80,11 @@ class Users(UserMixin, db.Model):
             .filter(Reviews.user_id==self.id, Reviews.tutor_id==tutor.id)\
             .first()
         return True if result is not None else False
+    
+    def new_messages(self):
+        last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
+        return Messages.query.filter_by(recipient=self).filter(
+            Messages.timestamp > last_read_time).count()
 
     @staticmethod
     def verify_reset_password_token(token):
@@ -166,6 +179,18 @@ tutor_category = db.Table('tutor_category',
     db.Column('tutor_id', db.Integer, db.ForeignKey('tutors.id'), primary_key=True),
     db.Column('category_id', db.Integer, db.ForeignKey('categories.id'), primary_key=True)
 )
+
+class Messages(db.Model):
+    __tablename__ = 'messages'
+    __table_args__ = {'extend_existing': True}
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    body = db.Column(db.String(140))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Message {}>'.format(self.body)
 
 from app import login
 

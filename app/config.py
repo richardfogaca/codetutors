@@ -24,7 +24,4 @@ class Config(object):
     ADMINS = ['rfncoding@gmail.com']
     TUTORS_PER_PAGE = 2
     REVIEWS_PER_PAGE = 1
-    
-    # from app import app
-    # with app.app_context():
-    #     UPLOADED_PHOTOS_DEST = os.path.join(os.path.dirname(app.instance_path), 'static/uploads')
+    MESSAGES_PER_PAGE = 3
