@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     
     <!-- My custom CSS file -->
-    <link rel= "stylesheet" type= "text/css" href="{{ url_for('static',filename='css/main.css') }}">
+    <link rel= "stylesheet" type= "text/css" href="{{ url_for('static',filename='/css/main.css') }}">
     
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {% block head %} {% endblock %}
@@ -19,7 +19,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-sm navbar-light bg-light sticky-top">
-        <a href="{{ url_for('index') }}" class="navbar-brand ml-2">Code Tutors</a>
+        <a href="{{ url_for('main.index') }}" class="navbar-brand ml-2">Code Tutors</a>
         <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -31,7 +31,7 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="dropdown_target">
                         {% for category in clever_function() %}
-                        <a href="{{ url_for('category', category_id=category.id) }}" class="dropdown-item">{{ category.name }}</a>
+                        <a href="{{ url_for('main.category', category_id=category.id) }}" class="dropdown-item">{{ category.name }}</a>
                         {% endfor %}
                     </div>
                 </li>
@@ -44,19 +44,19 @@
             <ul class="navbar-nav">
                 <li class="nav-item mr-2">
                     {% if current_user.is_anonymous %}
-                    <a href="{{ url_for('register') }}" class="nav-link btn btn-outline-primary">Sign up</a>
+                    <a href="{{ url_for('auth.register') }}" class="nav-link btn btn-outline-primary">Sign up</a>
                     </li>
                     {% else %}
                     {# Brings a dropdown with the dashboard links #}
                     <li class="nav-item dropdown mr-2">
-                        <a href="{{ url_for('dashboard') }}" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="dropdown_target">
+                        <a href="{{ url_for('main.dashboard') }}" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="dropdown_target">
                             <span class="caret">{{ current_user.first_name }}</span>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdown_target">
-                            <a href="{{ url_for('dashboard') }}" class="dropdown-item">Dashboard</a>
-                            <a href="{{ url_for('change_password') }}" class="dropdown-item">Change password</a>
-                            <a href="{{ url_for('following', user_id=current_user.id) }}" class="dropdown-item">Following</a>
-                            <a href="{{ url_for('my_reviews') }}" class="dropdown-item">My reviews</a>
+                            <a href="{{ url_for('main.dashboard') }}" class="dropdown-item">Dashboard</a>
+                            <a href="{{ url_for('auth.change_password') }}" class="dropdown-item">Change password</a>
+                            <a href="{{ url_for('main.following', user_id=current_user.id) }}" class="dropdown-item">Following</a>
+                            <a href="{{ url_for('main.my_reviews') }}" class="dropdown-item">My reviews</a>
                         </div>
                     </li>
 
@@ -64,9 +64,9 @@
 
                 <li class="nav-item">
                     {% if current_user.is_anonymous %}
-                    <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+                    <a href="{{ url_for('auth.login') }}" class="nav-link">Login</a>
                     {% else %}
-                    <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link">Logout</a>
                     {% endif %}
                 </li>
             </ul>

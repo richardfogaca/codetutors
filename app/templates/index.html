@@ -15,7 +15,7 @@
         <div class="profile-image col-3">
         <ul>
             {% if user.profile_img %}
-                <li class="d-flex justify-content-center"><img class="avatar" src="{{ url_for('display_image', filename=user.profile_img) }}" alt="User thumbnail"></li>
+                <li class="d-flex justify-content-center"><img class="avatar" src="{{ url_for('main.display_image', filename=user.profile_img) }}" alt="User thumbnail"></li>
             {% else %}
                 <li><img class="avatar" src="{{ user.avatar() }}" alt="User thumbnail"></li>
             {% endif %}
@@ -26,7 +26,7 @@
         </div>
         <div class="col-9 justify-content-center">
             {% if user.is_tutor() %}
-            <li><a href="{{ url_for('profile', tutor_id=user.tutor.id) }}"><h3>{{ user.first_name }} {{ user.last_name }}</h3></a></li>
+            <li><a href="{{ url_for('main.profile', tutor_id=user.tutor.id) }}"><h3>{{ user.first_name }} {{ user.last_name }}</h3></a></li>
             {% else %}
             <li><h3>{{ user.first_name }} {{ user.last_name }}</h3></li>
             {% endif %}
@@ -42,7 +42,7 @@
             {% if user.is_tutor() %}
             <li>Categories:&nbsp</li>
                 {% for c in user.tutor.get_categories() %}
-                <a href="{{ url_for('category', category_id=c.id) }}" class="btn btn-outline-success btn-sm">{{ c.name }}</a>&nbsp
+                <a href="{{ url_for('main.category', category_id=c.id) }}" class="btn btn-outline-success btn-sm">{{ c.name }}</a>&nbsp
                 {% endfor %}
             {% endif %}
         </div>

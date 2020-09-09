@@ -1,7 +1,6 @@
 from flask import render_template
-from app import app
+from app import db
 from app.errors import bp
-from manage import db
 
 @bp.app_errorhandler(403)
 def forbidden_error(error):

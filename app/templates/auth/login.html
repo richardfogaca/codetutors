@@ -4,7 +4,7 @@
 
 {% block content %}
     <h1>Sign In</h1>
-    <form action="{{ url_for('login') }}" method="POST">
+    <form action="{{ url_for('auth.login') }}" method="POST">
         {{ form.hidden_tag() }}
         <p>
             {{ form.email.label }}<br>
@@ -22,7 +22,7 @@
         </p>
         <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
         <p>{{ form.submit() }}</p>
-        <p>New User? <a href="{{ url_for('register') }}">Click to Register!</a></p>
-        <p>Forgot Your Password?<a href="{{ url_for('reset_password_request') }}">Click to Reset It</a></p>
+        <p>New User? <a href="{{ url_for('auth.register') }}">Click to Register!</a></p>
+        <p>Forgot Your Password?<a href="{{ url_for('auth.reset_password_request') }}">Click to Reset It</a></p>
     </form>
 {% endblock %}

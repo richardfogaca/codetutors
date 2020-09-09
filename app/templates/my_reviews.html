@@ -11,7 +11,7 @@
     Rating: {{ review.rating }}<br>
     Title: {{ review.title }}<br>
     Comment: {{ review.comment }}<br>
-    <a href="{{ url_for('add_review', tutor_id=review.tutor.id) }}">Edit review</a><br>
+    <a href="{{ url_for('main.add_review', tutor_id=review.tutor.id) }}">Edit review</a><br>
     {% if prev_url %}
     <a href="{{ prev_url }}">Previous page</a><br>
     {% endif %}

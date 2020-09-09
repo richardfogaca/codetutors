@@ -7,7 +7,7 @@
 
 <h3>Write a review</h3>
 <div class="container-fluid">
-    <form action="{{ url_for('add_review', tutor_id=tutor.id) }}" method="POST">
+    <form action="{{ url_for('main.add_review', tutor_id=tutor.id) }}" method="POST">
     <div class="row">
         <div class="col-md-4">
             {{ wtf.quick_form(form) }}

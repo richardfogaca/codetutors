@@ -16,7 +16,7 @@
             <img class="avatar" src="{{ user.avatar() }}" alt="User thumbnail">
             {% endif %}
             <br><br>
-            <form action="{{ url_for('dashboard') }}" enctype="multipart/form-data" method="POST">
+            <form action="{{ url_for('main.dashboard') }}" enctype="multipart/form-data" method="POST">
                 <div>
                     {{ image_form.csrf_token }}
                     {{ image_form.profile_img }}
@@ -33,10 +33,10 @@
             </div>
             <div class="row pt-3">
                 <ul>
-                    <li><a href="{{ url_for('change_password') }}">Change password</a></li>
-                    <li><a href="{{ url_for('following', user_id=current_user.get_id()) }}">Following</a></li>
+                    <li><a href="{{ url_for('auth.change_password') }}">Change password</a></li>
+                    <li><a href="{{ url_for('main.following', user_id=current_user.get_id()) }}">Following</a></li>
                     {% if is_tutor %}
-                    <li><a href="{{ url_for('edit_profile') }}">Edit your profile</a></li>
+                    <li><a href="{{ url_for('main.edit_profile') }}">Edit your profile</a></li>
                     {% endif %}
                 </ul>
             </div>

@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 import unittest
-from app import app
-from manage import db
+from app import app, db
 from app.models import Users, Tutors, Reviews, Categories
 
 class UserModelCase(unittest.TestCase):

@@ -1,6 +1,6 @@
 from datetime import datetime
-from app import login
-from manage import db
+from app import db
+from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,7 +8,6 @@ from hashlib import md5
 from time import time
 from sqlalchemy import func
 import jwt
-
 
 followers_table = db.Table('followers_table',
     db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
@@ -63,7 +62,7 @@ class Users(UserMixin, db.Model):
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
-            app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
+            current_app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
 
     def is_tutor(self):
         return True if self.tutor is not None else False
@@ -77,7 +76,7 @@ class Users(UserMixin, db.Model):
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'],
+            id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256'])['reset_password']
         except:
             return
@@ -168,8 +167,8 @@ tutor_category = db.Table('tutor_category',
     db.Column('category_id', db.Integer, db.ForeignKey('categories.id'), primary_key=True)
 )
 
+from app import login
+
 @login.user_loader
 def load_user(id):
     return Users.query.get(int(id))
-
-from app import app
