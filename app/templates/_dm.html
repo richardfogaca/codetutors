@@ -1,7 +1,7 @@
 <table class="table table-hover">
         <tr>
             <td width="70px">
-                {% if message.author.is_tutor %}
+                {% if message.author.is_tutor() %}
                 <a href="{{ url_for('main.profile', tutor_id=message.author.tutor.id) }}">
                 {% endif %}
                     {% if message.author.profile_img %}
@@ -9,12 +9,12 @@
                     {% else %}
                     <img class="avatar" src="{{ message.author.avatar() }}" alt="User thumbnail">
                     {% endif %}
-                {% if message.author.is_tutor %}
+                {% if message.author.is_tutor() %}
                 </a>
                 {% endif %}
             </td>
             <td>
-                {% if message.author.is_tutor %}
+                {% if message.author.is_tutor() %}
                     {% set user_link %}
                         <span class="user_popup">
                             <a href="{{ url_for('main.profile', tutor_id=message.author.tutor.id) }}">

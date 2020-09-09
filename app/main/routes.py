@@ -253,7 +253,6 @@ def assign_category():
     return render_template('assign_category.html', title='CodeTutors - Assign Categories', form=form)
 
 @bp.route('/category/<int:category_id>')
-@login_required
 def category(category_id):
     """
     List all Tutors related to that specific Category

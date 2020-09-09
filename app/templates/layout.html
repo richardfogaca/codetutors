@@ -47,27 +47,32 @@
                     <a href="{{ url_for('auth.register') }}" class="nav-link btn btn-outline-primary">Sign up</a>
                     </li>
                     {% else %}
-                    
-                    {# Badge showing the total messages count #}
-                    <li>
-                        <a href="{{ url_for('main.messages') }}" class="nav-link">
-                            Messages
-                            {% set new_messages = current_user.new_messages() %}
-                            <span id="message_count" class="badge"
-                                  style="visibility: {% if new_messages %}visible
-                                                     {% else %}hidden {% endif %};">
-                                {{ new_messages }}
-                            </span>
-                        </a>
-                    </li>
 
                     {# Brings a dropdown with the dashboard links #}
                     <li class="nav-item dropdown mr-2">
                         <a href="{{ url_for('main.dashboard') }}" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="dropdown_target">
                             <span class="caret">{{ current_user.first_name }}</span>
+                            {% set new_messages = current_user.new_messages() %}
+                            {% if new_messages %}
+                            <span id="message_count" class="badge"
+                                  style="visibility: {% if new_messages %}visible
+                                                     {% else %}hidden {% endif %};">
+                                {{ new_messages }}
+                            </span>
+                            {% endif %}
                         </a>
                         <div class="dropdown-menu" aria-labelledby="dropdown_target">
                             <a href="{{ url_for('main.dashboard') }}" class="dropdown-item">Dashboard</a>
+                            <a href="{{ url_for('main.messages') }}" class="dropdown-item">
+                                Messages
+                                {% if new_messages %}
+                                <span id="message_count" class="badge"
+                                    style="visibility: {% if new_messages %}visible
+                                                        {% else %}hidden {% endif %};">
+                                    {{ new_messages }}
+                                </span>
+                                {% endif %}
+                            </a>
                             <a href="{{ url_for('auth.change_password') }}" class="dropdown-item">Change password</a>
                             <a href="{{ url_for('main.following', user_id=current_user.id) }}" class="dropdown-item">Following</a>
                             <a href="{{ url_for('main.my_reviews') }}" class="dropdown-item">My reviews</a>
