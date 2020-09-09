@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import time
 from app import db
 from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
@@ -7,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
 from time import time
 from sqlalchemy import func
-import jwt
+import jwt, json
 
 followers_table = db.Table('followers_table',
     db.Column('follower_id', db.Integer, db.ForeignKey('users.id')),
@@ -39,6 +40,9 @@ class Users(UserMixin, db.Model):
                                         foreign_keys='Messages.recipient_id',
                                         backref='recipient', lazy='dynamic')
     last_message_read_time = db.Column(db.DateTime)
+    
+    notifications = db.relationship('Notifications', backref='user',
+                                    lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -85,6 +89,12 @@ class Users(UserMixin, db.Model):
         last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
         return Messages.query.filter_by(recipient=self).filter(
             Messages.timestamp > last_read_time).count()
+
+    def add_notification(self, name, data):
+        self.notifications.filter_by(name=name).delete()
+        n = Notifications(name=name, payload_json=json.dumps(data), user=self)
+        db.session.add(n)
+        return n
 
     @staticmethod
     def verify_reset_password_token(token):
@@ -191,6 +201,18 @@ class Messages(db.Model):
 
     def __repr__(self):
         return '<Message {}>'.format(self.body)
+    
+class Notifications(db.Model):
+    __tablename__ = 'notifications'
+    __table_args__ = {'extend_existing': True}
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    timestamp = db.Column(db.Float, index=True, default=time)
+    payload_json = db.Column(db.Text)
+
+    def get_data(self):
+        return json.loads(str(self.payload_json))
 
 from app import login
 

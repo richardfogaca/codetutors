@@ -334,6 +334,7 @@ def send_message(user_id):
         msg = Messages(author=current_user, recipient=user,
                       body=form.message.data)
         db.session.add(msg)
+        user.add_notification('unread_message_count', user.new_messages())
         db.session.commit()
         flash('Your message has been sent.')
         return redirect(url_for('main.messages'))
@@ -344,6 +345,7 @@ def send_message(user_id):
 @login_required
 def messages():
     current_user.last_message_read_time = datetime.utcnow()
+    current_user.add_notification('unread_message_count', 0)
     db.session.commit()
     page = request.args.get('page', 1, type=int)
     messages = current_user.messages_received.order_by(
@@ -355,3 +357,21 @@ def messages():
         if messages.has_prev else None
     return render_template('messages.html', title='CodeTutors - Messages', messages=messages.items,
                            next_url=next_url, prev_url=prev_url)
+
+@bp.route('/notifications')
+@login_required
+def notifications():
+    """
+    Giving the option to only request notifications since a given time.
+        The since option can be included in the query string of the request URL,
+        with the unix timestamp of the starting time, as a floating point number.
+        Only notifications that occurred after this time will be returned if this argument is included
+    """ 
+    since = request.args.get('since', 0.0, type=float)
+    notifications = current_user.notifications.filter(
+        Notifications.timestamp > since).order_by(Notifications.timestamp.asc())
+    return jsonify([{
+        'name': n.name,
+        'data': n.get_data(),
+        'timestamp': n.timestamp
+    } for n in notifications])

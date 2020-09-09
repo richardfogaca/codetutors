@@ -55,7 +55,6 @@
             </div>
             {% endfor %}
 
-            <!-- TODO: Add a validation 'if the user is not logged in' along with 'not is_owner' -->
             {% if not is_owner and current_user.is_authenticated %}
                 {% if current_user.has_rated_tutor(tutor) %}
                 <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Edit review</a><br>

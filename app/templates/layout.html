@@ -47,6 +47,20 @@
                     <a href="{{ url_for('auth.register') }}" class="nav-link btn btn-outline-primary">Sign up</a>
                     </li>
                     {% else %}
+                    
+                    {# Badge showing the total messages count #}
+                    <li>
+                        <a href="{{ url_for('main.messages') }}" class="nav-link">
+                            Messages
+                            {% set new_messages = current_user.new_messages() %}
+                            <span id="message_count" class="badge"
+                                  style="visibility: {% if new_messages %}visible
+                                                     {% else %}hidden {% endif %};">
+                                {{ new_messages }}
+                            </span>
+                        </a>
+                    </li>
+
                     {# Brings a dropdown with the dashboard links #}
                     <li class="nav-item dropdown mr-2">
                         <a href="{{ url_for('main.dashboard') }}" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="dropdown_target">
@@ -72,19 +86,47 @@
             </ul>
         </div>
     </nav>
-    {# this shows all flashed messages altogether (yes bootstrap) #}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div class="alert alert-{{ messages.0.0 }}" role="alert">
-        {% for category, message in messages %}
-            {{ message }} <br>
-        {% endfor %}
-        </div>
-    {% endif %}
-    {% endwith %}
-
+    
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert alert-{{ messages.0.0 }}" role="alert">
+            {% for category, message in messages %}
+                {{ message }} <br>
+            {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+    
     {% block content %}
 
     {% endblock %}
+
+    {% block scripts %}
+        <script>
+            function set_message_count(n) {
+                $('#message_count').text(n);
+                $('#message_count').css('visibility', n ? 'visible' : 'hidden');
+            }
+            {% if current_user.is_authenticated %}
+            $(function() {
+                var since = 0;
+                setInterval(function() {
+                    $.ajax('{{ url_for('main.notifications') }}?since=' + since).done(
+                        function(notifications) {
+                            for (var i = 0; i < notifications.length; i++) {
+                                if (notifications[i].name == 'unread_message_count')
+                                    set_message_count(notifications[i].data);
+                                since = notifications[i].timestamp;
+                            }
+                        }
+                    );
+                }, 10000);
+            });
+            {% endif %}
+        </script>
+    {% endblock %}
+
 </body>
 </html>
