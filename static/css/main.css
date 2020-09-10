@@ -1,3 +1,39 @@
+body {
+	font-family: Pulpdisplay, sans-serif;
+	src: url('../fonts/PulpDisplay-Bold.ttf');
+	src: url('../fonts/PulpDisplay-Light.ttf');
+	src: url('../fonts/PulpDisplay-Medium.ttf');
+	color: #1B2448;
+}
+
+a {
+	color: #1B2448;
+}
+
+h1 {
+	font-size: 50px;
+}
+
+h2 {
+	font-size: 40px;
+}
+
+p {
+	color: #8D9183;
+	font-size: 20px;
+}
+
+.navbar {
+	background-color: transparent;
+}
+
+.wrapper {
+	margin-right: auto;
+	margin-left: auto;
+	padding-right: 40px;
+	padding-left: 40px;
+}
+
 .avatar {
     border-radius: 50%;
 }

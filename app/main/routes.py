@@ -230,7 +230,6 @@ def get_rating(tutor_id):
         tutor = Tutors.query.get(tutor_id)
     except NoResultFound:
         return jsonify(error="Tutor not found", code=404)
-    pass
 
 @bp.route('/assign_category', methods=['GET', 'POST'])
 @login_required

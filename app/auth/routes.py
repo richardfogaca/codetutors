@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, current_user, login_required
 from app.auth import bp
-from app.auth.forms import LoginForm, RegistrationForm, ResetPasswordForm, ChangePasswordForm, ResetPasswordRequestForm
+from app.auth.forms import LoginForm, UserRegistrationForm, ResetPasswordForm, ChangePasswordForm, ResetPasswordRequestForm, TutorRegistrationForm
 from app.models import Users
 from app import db
 from werkzeug.urls import url_parse
@@ -33,7 +33,7 @@ def logout():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
-    form = RegistrationForm()
+    form = UserRegistrationForm()
     if form.validate_on_submit():
         user = Users(first_name=form.first_name.data,
             last_name=form.last_name.data,
@@ -45,19 +45,27 @@ def register():
         return redirect(url_for('main.login'))
     return render_template('auth/register.html', title='CodeTutors - Register', form=form)
 
+@bp.route('/register_tutor', methods=['GET', 'POST'])
+@login_required
+def register_tutor():
+    user = Users.query.get(current_user.id)
+    form = TutorRegistrationForm()
+    if form.validate_on_submit:
+        pass
+    return render_template('auth/register_tutor.html', title='CodeTutors - Tutor Registration', form=form) 
+
 @bp.route('/change_password', methods=['GET', 'POST'])
 @login_required
 def change_password():
     user = Users.query.get(current_user.id)
     password_form = ChangePasswordForm()
-    if request.method == 'POST':
-        if password_form.validate_on_submit():
-            if user.check_password(password_form.current_password.data):
-                user.set_password(password_form.new_password.data)
-                db.session.commit()
-                flash('Sucess! You have updated your password!')
-            else:
-                flash('Please review your password and try again')
+    if password_form.validate_on_submit():
+        if user.check_password(password_form.current_password.data):
+            user.set_password(password_form.new_password.data)
+            db.session.commit()
+            flash('Sucess! You have updated your password!')
+        else:
+            flash('Please review your password and try again')
         return redirect(url_for('main.dashboard'))
     return render_template('auth/change_password.html', title='CodeTutors - Reset Password' ,user=user, password_form=password_form)
 
