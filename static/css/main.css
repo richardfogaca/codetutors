@@ -1,11 +1,13 @@
 body {
-	font-family: Pulpdisplay, sans-serif;
-	src: url('../fonts/PulpDisplay-Bold.ttf');
-	src: url('../fonts/PulpDisplay-Light.ttf');
-	src: url('../fonts/PulpDisplay-Medium.ttf');
-	color: #1B2448;
+	padding-top: 100px;
 }
 
+ul, li {
+	list-style-type: none;
+	padding: 6px;
+}
+
+/* 
 a {
 	color: #1B2448;
 }
@@ -62,17 +64,12 @@ p {
 }
 
 #profile_img + label {
-	cursor: pointer; /* "hand" cursor */
+	cursor: pointer; /* "hand" cursor
 }
 
 #profile_img:focus + label {
 	outline: 1px dotted #000;
 	outline: -webkit-focus-ring-color auto 5px;
-}
-
-ul, li {
-	list-style-type: none;
-	padding: 6px;
 }
 
 .profile-image {
@@ -95,4 +92,4 @@ ul, li {
 .fields-container {
 	border: 1px solid #EBEBEB;
 	padding: 20px;
-}
+} */
