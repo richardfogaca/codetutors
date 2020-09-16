@@ -3,22 +3,31 @@
 {% block title %} {{ title }} {% endblock %}
 
 {% block content %}
-    <h1>Messages</h1>
-    {% for message in messages %}
-        {% include '_dm.html' %}
-    {% endfor %}
-    <nav aria-label="...">
-        <ul class="pager">
-            <li class="previous{% if not prev_url %} disabled{% endif %}">
-                <a href="{{ prev_url or '#' }}">
-                    <span aria-hidden="true">&larr;</span>  Newer messages
-                </a>
-            </li>
-            <li class="next{% if not next_url %} disabled{% endif %}">
-                <a href="{{ next_url or '#' }}">
-                    Older messages <span aria-hidden="true">&rarr;</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+<div class="container">
+    <div class="row d-flex justify-content-center">
+        <h3 class="" style="margin: 10px 0 20px 0">Messages</h3>
+        {% for message in messages %}
+            {% include '_dm.html' %}
+        {% endfor %}
+
+        <div class="container paginator-container" style="margin: 30px 5px">
+            <div class="row">
+                <div class="col">
+                    {% if prev_url %}
+                        <span class="prev">
+                            <a href="{{ prev_url }}">Previous</a>
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="col">
+                    {% if next_url %}
+                        <span class="next">
+                            <a href="{{ next_url }}">Next</a>
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

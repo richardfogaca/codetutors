@@ -1,14 +1,15 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
-from flask_uploads import patch_request_class
+from flask_uploads import patch_request_class, configure_uploads
+
 from app.config import Config
 from flask_login import LoginManager
 from logging.handlers import RotatingFileHandler, SMTPHandler
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf import CSRFProtect
-import os, logging
+import os, logging, jinja2.filters
 
 csrf = CSRFProtect()
 db = SQLAlchemy()
@@ -33,6 +34,7 @@ def create_app(config_class=Config):
     
     # app._static_folder = os.path.abspath("static/")
     app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(os.path.dirname(app.instance_path), 'static/uploads')
+    
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
@@ -78,6 +80,13 @@ def create_app(config_class=Config):
     def clever_function():
         return Categories.get_all()
     app.jinja_env.globals.update(clever_function=clever_function)
+    
+    def datetimeformat(value, format='%d-%m-%Y - %H:%M'):
+        return value.strftime(format)
+    app.jinja_env.filters['datetimeformat'] = datetimeformat
+    
+    from app.main.routes import photos
+    configure_uploads(app, photos)
 
     return app
 

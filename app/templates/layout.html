@@ -20,7 +20,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/Team-Boxed.css') }}">
     <script src="{{ url_for('static',filename='js/lib/jquery-3.5.1.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script> -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 </head>
 
 <body id="page-top">
@@ -32,7 +32,6 @@
             <div class="collapse navbar-collapse js-scroll-trigger" href="#portfolio" id="navbarResponsive">
                 <ul class="nav navbar-nav ml-auto text-uppercase">
                     <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#services">Find a tutor</a></li>
-                    <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#portfolio">Categories</a></li>
                     <li class="nav-item dropdown">
                         <a class="dropdown-toggle nav-link" data-toggle="dropdown" aria-expanded="false" href="#">Categories</a>
                         <div class="dropdown-menu">
@@ -44,50 +43,55 @@
                     <li class="nav-item">
                         {% if current_user.is_anonymous %}
                         <a href="{{ url_for('auth.login') }}" class="nav-link">Login</a>
-                        {% else %}
-                        <a href="{{ url_for('auth.logout') }}" class="nav-link">Logout</a>
                         {% endif %}
                     </li>
                     {% if not current_user.is_anonymous %}
-                    <li class="nav-item dropdown">
-                        <a href="{{ url_for('main.dashboard') }}" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="dropdown_target">
-                        <span class="caret">{{ current_user.first_name }}</span>
-                                {% set new_messages = current_user.new_messages() %}
-                                {% if new_messages %}
-                                <span id="message_count" class="badge"
-                                    style="visibility: {% if new_messages %}visible
-                                                        {% else %}hidden {% endif %};">
-                                    {{ new_messages }}
-                                </span>
+                        <li class="nav-item dropdown">
+                            <div class="user-photo-container">
+                                {% if current_user.profile_img %}
+                                    <img class="img-icon" src="{{ url_for('main.display_image', filename=current_user.profile_img) }}" alt="User thumbnail">
+                                {% else %}
+                                    <img class="img-icon" src="{{ current_user.avatar() }}" alt="User thumbnail">
                                 {% endif %}
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="dropdown_target">
-                            <a href="{{ url_for('main.dashboard') }}" class="dropdown-item">Dashboard</a>
-                            <a href="{{ url_for('main.messages') }}" class="dropdown-item">
-                                Messages
-                                {% if new_messages %}
-                                <span id="message_count" class="badge"
-                                    style="visibility: {% if new_messages %}visible
-                                                        {% else %}hidden {% endif %};">
-                                    {{ new_messages }}
-                                </span>
-                                {% endif %}
-                            </a>
-                            <a href="{{ url_for('auth.change_password') }}" class="dropdown-item">Change password</a>
-                            <a href="{{ url_for('main.following', user_id=current_user.id) }}" class="dropdown-item">Following</a>
-                            <a href="{{ url_for('main.my_reviews') }}" class="dropdown-item">My reviews</a>
-                        </div>
-                    </li>
+                                <a href="{{ url_for('main.dashboard') }}" id="dashboard-link" class="nav-link dropdown-toggle" data-toggle="dropdown" data-target="dropdown_target">
+                                    <span class="caret">{{ current_user.first_name }}</span>
+                                    {% set new_messages = current_user.new_messages() %}
+                                    {% if new_messages %}
+                                        <span id="message_count" class="badge"
+                                            style="visibility: {% if new_messages %}visible
+                                                            {% else %}hidden {% endif %};">
+                                        {{ new_messages }}
+                                    </span>
+                                    {% endif %}
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="dropdown_target">
+                                    <a href="{{ url_for('main.dashboard') }}" class="dropdown-item">Dashboard</a>
+                                    <a href="{{ url_for('main.messages') }}" class="dropdown-item">
+                                         Messages
+                                        {% if new_messages %}
+                                        <span id="message_count" class="badge"
+                                            style="visibility: {% if new_messages %}visible
+                                                                {% else %}hidden {% endif %};">
+                                            {{ new_messages }}
+                                        </span>
+                                        {% endif %}
+                                    </a>
+                                    <a href="{{ url_for('main.following', user_id=current_user.id) }}" class="dropdown-item">Following</a>
+                                    <a href="{{ url_for('main.my_reviews') }}" class="dropdown-item">My reviews</a>
+                                    <a href="{{ url_for('auth.logout') }}" class="dropdown-item">Logout</a>
+                                </div>
+                            </div>
+                        </li>
                     {% endif %}
                     {% if current_user.is_anonymous %}
-                        <button href="{{ url_for('auth.register') }}" class="btn btn-outline-primary d-xl-flex" type="button">Sign up</button>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary d-xl-flex" id="btn-signup" type="button">Sign up</a>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
         
-    <div class="container">
+    <div class="container-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="alert alert-{{ messages.0.0 }}" role="alert">

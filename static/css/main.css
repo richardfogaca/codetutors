@@ -1,5 +1,15 @@
 body {
-	padding-top: 100px;
+	/* modified the properties below to give a dark mode aesthetic, I can just delete that if I want to */
+	background-color: #191B1C;
+	color: white;
+}
+
+.bg-dark {
+	background-color: #2C2F31!important;
+}
+
+.table {
+	color: white;
 }
 
 ul, li {
@@ -7,89 +17,144 @@ ul, li {
 	padding: 6px;
 }
 
-/* 
-a {
-	color: #1B2448;
+@media (min-width: 992px) {
+	body {
+		padding-top: 100px;
+	}
+	#mainNav {
+		padding-top: 5px;
+		padding-bottom: 5px;
+	}
+	.message-content-col {
+		width: 650px;
+	}
 }
 
-h1 {
-	font-size: 50px;
+@media (max-width: 991px) {
+	body {
+		padding-top: 70px;
+	}
+	#dashboard-link {
+		margin-left: 10px;
+	}
+	.message-content-col {
+		width: 450px;
+	}
 }
 
-h2 {
-	font-size: 40px;
+@media (max-width: 575px) {
+	body {
+		padding-top: 70px;
+	}
+	.message-content-col {
+		width: 250px;
+	}
 }
 
-p {
-	color: #8D9183;
-	font-size: 20px;
+#upload-photo-btn {
+	margin-top: 20px;
 }
 
-.navbar {
-	background-color: transparent;
+.modal .modal-content {
+	background: #262a2e;
 }
 
-.wrapper {
-	margin-right: auto;
+.profile-header {
+	flex-wrap: nowrap;
+}
+
+.photo-col {
+	width: 150px;
+	text-align: center;
+}
+
+#signin-container {
+	margin: 0 50px;
+}
+#register-container {
+	margin: 0 50px;
+}
+.message-photo-col {
+	display: contents;
+}
+
+.message-row {
+	display: flex;
+	justify-content: space-around;
+}
+
+.paginator-container {
+	display: flex;
+	justify-content: center;
+}
+
+.img-messages {
+	margin-right: 12px;
+}
+
+.message-container {
+	margin-bottom: 15px;
+	flex-wrap: nowrap;
+}
+
+.img-messages {
+	width: 45px;
+	height: 45px;
+	border-radius: 10%;
+}
+
+#btn-signup {
+	height: 40px;
+	margin-left: 8px;
+}
+
+.navbar-nav {
+	align-items: center;
+}
+
+#btn-login, #btn-register {
+	background-color: #fed136;	
+}
+
+.row-profile-field {
+	margin: 7px 0;
+}
+
+.row-category-field {
+	margin-top: 12px;
+}
+
+.col-profile-field {
+	padding: 0;
+}
+
+.profile-info-container {
+	padding: 0;
+}
+
+.profile-img-container {
+	padding: 0;
+}
+
+.img-avatar {
+	display: block;
 	margin-left: auto;
-	padding-right: 40px;
-	padding-left: 40px;
+	margin-right: auto;
+	margin-top: 12px;
+	border-radius: 10%;
+	width: 80px;
+	height: 80px;
+  }
+
+.img-icon {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
 }
 
-.avatar {
-    border-radius: 50%;
+.user-photo-container {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	max-width: 200px;
 }
-
-#profile_img {
-	width: 0.1px;
-	height: 0.1px;
-	opacity: 0;
-	overflow: hidden;
-	position: absolute;
-	z-index: -1;
-}
-
-#profile_img + label {
-    color: white;
-    background-color: black;
-    display: inline-block;
-    padding: 8px;
-    border-radius: .30rem;
-    background-color: rgb(0, 140, 255);
-}
-
-#profile_img:focus + label,
-#profile_img + label:hover {
-    background-color: rgb(0, 140, 255);
-}
-
-#profile_img + label {
-	cursor: pointer; /* "hand" cursor
-}
-
-#profile_img:focus + label {
-	outline: 1px dotted #000;
-	outline: -webkit-focus-ring-color auto 5px;
-}
-
-.profile-image {
-	padding: 25px 0px 0px 25px;
-}
-
-.profile-container {
-	padding-bottom: 8px;
-	border: 1px solid #EBEBEB;
-}
-
-.profiles-container {
-	padding: 10px 35px;
-}
-
-.password-container {
-	padding: 10px 35px;
-}
-
-.fields-container {
-	border: 1px solid #EBEBEB;
-	padding: 20px;
-} */

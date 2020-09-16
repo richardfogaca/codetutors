@@ -1,19 +1,20 @@
-<table class="table table-hover">
-        <tr>
-            <td width="70px">
-                {% if message.author.is_tutor() %}
+<div class="container message-row">
+    <div class="row message-container">
+        <div class="col-xs-1 col-md-1 col-xl-1 message-photo-col">
+            {% if message.author.is_tutor() %}
                 <a href="{{ url_for('main.profile', tutor_id=message.author.tutor.id) }}">
+            {% endif %}
+                {% if message.author.profile_img %}
+                <img class="img-messages" src="{{ url_for('main.display_image', filename=message.author.profile_img) }}" alt="User thumbnail">
+                {% else %}
+                <img class="img-messages" src="{{ message.author.avatar() }}" alt="User thumbnail">
                 {% endif %}
-                    {% if message.author.profile_img %}
-                    <img class="avatar" src="{{ url_for('main.display_image', filename=message.author.profile_img) }}" alt="User thumbnail">
-                    {% else %}
-                    <img class="avatar" src="{{ message.author.avatar() }}" alt="User thumbnail">
-                    {% endif %}
-                {% if message.author.is_tutor() %}
+            {% if message.author.is_tutor() %}
                 </a>
-                {% endif %}
-            </td>
-            <td>
+            {% endif %}
+        </div>
+        <div class="col-xs-11 col-md-11 col-xl-11 offset-xl-0 message-content-col">
+            <div class="row">
                 {% if message.author.is_tutor() %}
                     {% set user_link %}
                         <span class="user_popup">
@@ -22,12 +23,14 @@
                             </a>
                         </span>
                     {% endset %}
-                    {{ user_link }} said {{ message.timestamp }}
+                    {{ user_link }} &nbspsaid:&nbsp {{ message.timestamp|datetimeformat }}
                 {% else %}
-                    {{ message.author.first_name }} {{ message.author.last_name }} said {{ message.timestamp }}
+                    {{ message.author.first_name }} {{ message.author.last_name }} said:&nbsp {{ message.timestamp|datetimeformat }}
                 {% endif %}
-                <br>
+            </div>
+            <div class="row">
                 <span id="message{{ message.id }}">{{ message.body }}</span>
-            </td>
-        </tr>
-    </table>
+            </div>
+        </div>
+    </div>    
+</div>

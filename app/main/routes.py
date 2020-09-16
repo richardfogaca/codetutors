@@ -2,6 +2,7 @@ from flask import render_template, flash, redirect, request, url_for, jsonify, c
 from flask_login import current_user, login_required
 from flask_http_response import success, result, error
 from flask_wtf.csrf import generate_csrf
+from flask_uploads import UploadSet, IMAGES
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -15,6 +16,8 @@ from app.main import bp
 import logging, os, time, hashlib, pathlib
 
 from os import path
+
+photos = UploadSet('photos', IMAGES)
 
 
 # this decorator function is executed before any other  view function
@@ -168,15 +171,17 @@ def dashboard():
     logging.warning(image_form.errors)
     if request.method == 'POST':
         if image_form.validate_on_submit():
-            # saving the profile image
-            filename = image_form.profile_img.data
+            filename = request.files.get('profile_img')
+            
+            # hashing the filename            
             str_name = 'admin' + str(int(time.time()))
             name = hashlib.md5(str_name.encode("utf-8")).hexdigest()[:15]
             file_extension = pathlib.Path(filename.filename).suffix
-            current_app.photos.save(filename, name=name + '.')
+            
+            photos.save(filename, name=name + '.')
 
             # resizing the thumbnail image
-            file_url = current_app.photos.path(name) + file_extension
+            file_url = photos.path(name) + file_extension
             image = Image.open(file_url)
             image = expand2square(image, (0, 0, 0)).resize((150, 150), Image.LANCZOS)
             image.save(file_url, quality=95)
@@ -189,7 +194,7 @@ def dashboard():
     return render_template('dashboard.html', title='CodeTutors - Dashboard',
                         user=user, image_form=image_form, is_tutor=is_tutor)
 
-@bp.route('/display/<filename>')
+@bp.route('/display_image/<filename>')
 @login_required
 def display_image(filename):
 	print('display_image filename: ' + filename)

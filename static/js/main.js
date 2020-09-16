@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let input = document.getElementById('profile_img');
         let label = input.nextElementSibling;
         let labelVal = label.innerHTML;
-        
+        input.setAttribute('data-multiple-caption', '{count} files selected')
+
         input.addEventListener('change', function(e) {
             var fileName = '';
             if (this.files && this.files.length > 1)

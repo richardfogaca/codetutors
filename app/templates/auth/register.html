@@ -3,44 +3,102 @@
 {% block title %} {{ title }} {% endblock %}
 
 {% block content %}
-    <h1>Register</h1>
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.first_name.label }}<br>
-            {{ form.first_name(size=32) }}<br>
-            {% for error in form.first_name.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.last_name.label }}<br>
-            {{ form.last_name(size=32) }}<br>
-            {% for error in form.last_name.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email(size=64) }}<br>
-            {% for error in form.email.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}<br>
-            {% for error in form.password.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.password2.label }}<br>
-            {{ form.password2(size=32) }}<br>
-            {% for error in form.password2.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
+<div class="row register-form">
+    <div class="col-md-4 offset-md-4" id="register-container">
+        <h2>Register</h2>
+        <form action="{{ url_for('auth.register') }}" method="POST" class="custom-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label for="login-email">Email address</label>
+                {{ form.email(class="form-control", type="email", id="login-email") }}
+            
+                {% for error in form.email.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="register-firstname">First Name</label>
+                {{ form.first_name(class="form-control", type="text", id="register-firstname") }}
+                {% for error in form.first_name.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}    
+            </div>
+    
+            <div class="form-group">
+                <label for="register-lastname">Last Name</label>
+                {{ form.last_name(class="form-control", type="text", id="register-lastname") }}
+                {% for error in form.last_name.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}    
+            </div>
+            
+            <div class="form-group">
+                <label for="register-email">Email</label>
+                {{ form.email(class="form-control", type="email", id="register-email") }}
+                {% for error in form.email.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}    
+            </div>
+        
+            <div class="form-group">
+                <label for="register-password">Email</label>
+                {{ form.password(class="form-control", type="password", id="register-password") }}
+                {% for error in form.password.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}    
+            </div>
+        
+            <div class="form-group">
+                <label for="register-password2">Email</label>
+                {{ form.password2(class="form-control", type="password2", id="register-password2") }}
+                {% for error in form.password2.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}    
+            </div>
+            
+            <div class="form-check" style="padding: 0px; margin-bottom: 20px;">
+                {{ form.submit(class="btn btn-light btn-block submit-button", type="submit", id="btn-register") }}
+            </div>
+            
+        </form>
+    </div>
+</div>
 {% endblock %}
+
+<div class="row register-form">
+    <div class="col-md-4 offset-md-4" id="register-container">
+        <h2>Register</h2>
+        <form action="{{ url_for('auth.register') }}" method="POST" class="custom-form">
+            {{ form.hidden_tag() }}
+                
+                
+                <div class="form-group">
+                    <label for="input-password">Password</label>
+                    {{ form.password(class="form-control", type="password", id="input-password") }}
+
+                    {% for error in form.password.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-check" style="margin-bottom: 10px">
+                    {{ form.remember_me(class="form-check-input", type="checkbox", id="checkbox-remember-me") }}
+                    <label class="form-check-label" for="checkbox-remember-me">Remember me</label>
+                </div>
+
+                <div class="form-check" style="padding: 0px; margin-bottom: 20px;">
+                    {{ form.submit(class="btn btn-light btn-block submit-button", type="button", id="btn-login") }}
+                </div>
+
+                <div class="form-check" style="padding: 0px; margin: 8px 0px">
+                    New User? <a href="{{ url_for('auth.register') }}">Click to Register!</a>
+                </div>
+
+                <div class="form-check" style="padding: 0px; margin: 8px 0px">
+                    Forgot Your Password? <a href="{{ url_for('auth.reset_password_request') }}">Click to Reset It</a>
+                </div>
+        </form>
+    </div>
+</div>

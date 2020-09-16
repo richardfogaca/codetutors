@@ -9,27 +9,28 @@
 {% block content %}
 <div class="container-fluid mt-3">
     <div class="row">
-        <div class="col-4 pt-3">
-            {% if user.profile_img %}
-            <img class="avatar" src="{{ url_for('display_image', filename=user.profile_img) }}" alt="User thumbnail">
-            {% else %}
-            <img class="avatar" src="{{ user.avatar() }}" alt="User thumbnail">
-            {% endif %}
-            <br><br>
-            <form action="{{ url_for('main.dashboard') }}" enctype="multipart/form-data" method="POST">
-                <div>
-                    {{ image_form.csrf_token }}
-                    {{ image_form.profile_img }}
-                    <label for="profile_img"><span>Select file</span></label>
-                </div>
-                <div class="input-group-append">
-                    {{ image_form.upload(class="input-group-text") }}
-                </div>
-            </form>
-        </div>
-        <div class="col-8 pl-3 pt-3">
+        <div class="col-md-3 pt-3 photo-col">
             <div class="row">
-                <h1>User: {{ user.first_name }} {{ user.last_name }}</h1><br>
+                <div class="col">
+                    {% if user.profile_img %}
+                        <img class="img-avatar" src="{{ url_for('main.display_image', filename=user.profile_img) }}" alt="User thumbnail">
+                    {% else %}
+                        <img class="img-avatar" src="{{ user.avatar() }}" alt="User thumbnail">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" 
+                        data-target="#photoModal" id="upload-photo-btn">
+                        Upload photo
+                    </button>
+                </div>    
+            </div>
+        </div>
+        <div class="col-md-9 pl-3 pt-3">
+            <div class="row">
+                <h1> {{ user.first_name }} {{ user.last_name }}</h1><br>
             </div>
             <div class="row pt-3">
                 <ul>
@@ -51,6 +52,38 @@
             
         </div>    
     </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1" role="dialog" data-modal-color="#191B1C"
+    aria-labelledby="photoModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="photoModalLabel">Upload photo</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div class="input-group">
+          <div class="custom-file">
+            <form action="{{ url_for('main.dashboard') }}" enctype="multipart/form-data" method="POST">
+              {{ image_form.csrf_token }}
+              {{ image_form.profile_img(class="custom-file-input", id="profile_img") }}
+              <label class="custom-file-label" for="profile_img"><span id="choose-file-span">Choose file</span></label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+          {{ image_form.upload(class="btn btn-primary btn-sm") }}
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
