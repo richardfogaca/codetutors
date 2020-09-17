@@ -195,7 +195,6 @@ def dashboard():
                         user=user, image_form=image_form, is_tutor=is_tutor)
 
 @bp.route('/display_image/<filename>')
-@login_required
 def display_image(filename):
 	print('display_image filename: ' + filename)
 	return redirect(url_for('static', filename='uploads/' + filename), code=301)
@@ -339,10 +338,15 @@ def send_message(user_id):
         db.session.add(msg)
         user.add_notification('unread_message_count', user.new_messages())
         db.session.commit()
-        flash('Your message has been sent.')
-        return redirect(url_for('main.messages'))
-    return render_template('send_message.html', title='CodeTutors - Send Message',
+        flash('Your message has been sent.', 'success')
+        return jsonify(status='ok')
+    elif request.method == 'GET':
+        return render_template('_send_message.html', title='CodeTutors - Send Message',
                            form=form, recipient=user.first_name)
+    else:
+        data = json.dumps(form.errors, ensure_ascii=False)
+        return jsonify(data)
+    
     
 @bp.route('/messages')
 @login_required

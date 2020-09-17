@@ -3,7 +3,25 @@
 {% block title %} CodeTutors - Access Forbidden 403 {% endblock %}
 
 {% block content %}
-    <h1>An unexpected error has occurred</h1>
-    <p>The administrator has been notified. Sorry for the inconvenience!</p>
-    <p><a href="{{ url_for('main.index') }}">Back</a></p>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="error-template">
+                <h1>
+                    Oops!</h1>
+                <h2>
+                    Unexpected Error</h2>
+                <div class="error-details">
+                    Sorry, an error has occurred, the administrator has been notified. Sorry for the inconvenience!
+                </div>
+                <div class="error-actions">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg">
+                        Return  </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

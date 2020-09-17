@@ -1,0 +1,25 @@
+
+<form id="ModalForm" name="stepForm" class="form" method="post">
+  <div class="modal-header">
+    <h5 class="modal-title" id="messageModalLabel">Send Message to {{ recipient }}</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          {{ form.hidden_tag() }}
+          <label for="messageFormTextArea">Message:</label>
+          {{ form.message(class="form-control", id="messageFormTextArea", rows="3") }}
+          <div id="message"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+    <button id="submitMessage" type="submit" class="btn btn-primary btn-sm">Submit</button>
+  </div>
+</form>

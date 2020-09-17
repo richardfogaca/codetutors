@@ -2,6 +2,41 @@
 
 {% block head %}
 <script src="{{ url_for('static',filename='js/main.js') }}"> </script>
+
+<script>
+    $(document).ready(function () {
+        $('#send-message-btn').click(function () {
+            var url = $(this).data('whatever');
+            $.get(url, function (data) {
+                $('#messageModal .modal-content').html(data);
+                $('#messageModal').modal();
+                $('#submitMessage').click(function (event) {
+                    event.preventDefault();
+                    $.post(url, data = $('#ModalForm').serialize(), function (
+                        data) {
+                        if (data.status == 'ok') {
+                            $('#messageModal').modal('hide');
+                            location.reload();
+                        } else {
+                            var obj = JSON.parse(data);
+                            for (var key in obj) {
+                                if (obj.hasOwnProperty(key)) {
+                                    var value = obj[key];
+                                }
+                            }
+                            
+                            $('.invalid-feedback').remove()
+                            $('<div class="invalid-feedback" style="display: contents">' + value + '</div>')
+                                .insertAfter('#' + key);
+                            $('.form-group').addClass('has-error')
+                        }
+                    })
+                });
+            })
+        });
+    });
+</script>
+
 {% endblock %}
 
 {% block title %} {{ title }} {% endblock %}
@@ -13,26 +48,33 @@
 <div class="container">
     <div class="row profile-header">
         <div class="col-md-3 col-xl-2 photo-col">
-            {% if user.profile_img %}
-                <img class="img-avatar" src="{{ url_for('main.display_image', filename=user.profile_img) }}" alt="User thumbnail">
-            {% else %}
-                <img class="img-avatar" src="{{ user.avatar() }}" alt="User thumbnail">
-            {% endif %}
+            <div class="row">
+                <div class="col">
+                    {% if user.profile_img %}
+                        <img class="img-avatar" src="{{ url_for('main.display_image', filename=user.profile_img) }}" alt="User thumbnail">
+                    {% else %}
+                        <img class="img-avatar" src="{{ user.avatar() }}" alt="User thumbnail">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    {% if user != current_user and current_user.is_authenticated %}
+                        <!-- Button trigger modal --> 
+                        <a href="#" class="btn btn-outline-primary btn-sm message-modal-opener"
+                            data-toggle="modal" data-target="#messageModal" 
+                            data-whatever="{{ url_for('main.send_message', user_id=user.id) }}" id="send-message-btn">
+                            Send message
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     
         <div class="col-md-9 col-xl-10 offset-xl-0">
             <div class="row">
                 <div class="col">
                     <h2>{{ user.first_name }} {{ user.last_name }}</h2><br>
-                </div>
-                <div class="col">
-                    {% if user != current_user and current_user.is_authenticated %}
-                        <!-- Button trigger modal --> 
-                        <a href="{{ url_for('main.send_message', user_id=user.id) }}" class="btn btn-outline-primary btn-sm"
-                            data-toggle="modal" data-target="#messageModal">
-                            Send message
-                        </a>
-                    {% endif %}
                 </div>
             </div>
             <div class="row">
@@ -149,19 +191,7 @@
     aria-labelledby="messageModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="messageModalLabel">Send a message</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
+
     </div>
   </div>
 </div>

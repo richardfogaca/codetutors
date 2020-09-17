@@ -3,6 +3,24 @@
 {% block title %} CodeTutors - Access Forbidden 403 {% endblock %}
 
 {% block content %}
-    <h1>Access Forbidden</h1>
-    <p><a href="{{ url_for('main.index') }}">Back</a></p>
+    <div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="error-template">
+                <h1>
+                    Oops!</h1>
+                <h2>
+                    403 Forbidden</h2>
+                <div class="error-details">
+                    Sorry, an error has occurred, forbidden access.
+                </div>
+                <div class="error-actions">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg">
+                        Return  </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

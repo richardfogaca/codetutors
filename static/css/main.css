@@ -4,6 +4,23 @@ body {
 	color: white;
 }
 
+
+.error-template {padding: 40px 15px;text-align: center;}
+.error-actions {margin-top:15px;margin-bottom:15px;}
+.error-actions .btn { margin-right:10px; }
+
+textarea,
+input.text,
+input[type="text"],
+input[type="button"],
+input[type="submit"],
+.input-checkbox,
+[type=button],
+a[type=button],
+.btn-outline-primary {
+-webkit-appearance: none;
+}
+
 .bg-dark {
 	background-color: #2C2F31!important;
 }
@@ -51,12 +68,32 @@ ul, li {
 	}
 }
 
+.modal-header {
+	border-bottom: 1px solid #505050;
+}
+
+.modal-footer {
+	border-top: 1px solid #505050;
+}
+
 #upload-photo-btn {
+	margin-top: 20px;
+}
+
+#send-message-btn {
 	margin-top: 20px;
 }
 
 .modal .modal-content {
 	background: #262a2e;
+}
+
+.close {
+	color: #FFF;
+}
+
+.close:hover {
+	color: #fed136;
 }
 
 .profile-header {
