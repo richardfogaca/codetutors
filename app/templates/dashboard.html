@@ -38,6 +38,7 @@
                     <li><a href="{{ url_for('main.following', user_id=current_user.get_id()) }}">Following</a></li>
                     {% if is_tutor %}
                     <li><a href="{{ url_for('main.edit_profile') }}">Edit your profile</a></li>
+                    {% else %}
                     <li><a href="{{ url_for('auth.register_tutor') }}">Become a Tutor</a></li>
                     {% endif %}
                 </ul>

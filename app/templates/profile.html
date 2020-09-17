@@ -96,11 +96,13 @@
                     <span class="col-form-label">$ {{ user.tutor.price }}</span>
                 </div>
             </div>
-            <div class="row">
-                <div class="col mt-1 mb-1">
-                    <span class="col-form-label">Rating: {{ user.tutor.get_average_ratings() }} ({{ user.tutor.count_ratings() }}) reviews</span>
-                </div>
-            </div>
+            {% if user.tutor.count_ratings() > 0 %}
+              <div class="row">
+                  <div class="col mt-1 mb-1">
+                      <span class="col-form-label">Rating: {{ user.tutor.get_average_ratings() }} ({{ user.tutor.count_ratings() }}) reviews</span>
+                  </div>
+              </div>
+            {% endif %}
             {% if tutor.about_me %}
                 <div class="row">
                     <div class="col mt-1 mb-1">
@@ -109,14 +111,22 @@
                     
                 </div>
             {% endif %}
-            <div class="row">
+            {% if tutor.get_categories()|length > 0 %}
+              <div class="row">
                 <div class="col mt-3 mb-3">
-                    <span class="col-form-label">
-                        <b>Categories:&nbsp</b>
-                        {% for c in tutor.get_categories() %}
-                            <a href="{{ url_for('main.category', category_id=c.id) }}" class="btn btn-outline-success btn-sm">{{ c.name }}</a>&nbsp
-                        {% endfor %}
-                    </span>
+                  <span class="col-form-label">
+                    <b>Categories:&nbsp</b>
+                    {% for c in tutor.get_categories() %}
+                        <a href="{{ url_for('main.category', category_id=c.id) }}" class="btn btn-outline-success btn-sm">{{ c.name }}</a>&nbsp
+                    {% endfor %}
+                  </span>
+                </div>
+              </div>
+            {% endif %}
+
+            <div class="row">
+                <div class="col mt-1 mb-3">
+                    <span class="col-form-label">Telephone: {{ tutor.telephone }}</span>
                 </div>
             </div>
 
@@ -130,57 +140,61 @@
             <div class="row pt-3 pb-3">
                 <div class="col">
                     <h3 class="pb-3">Reviews</h3>
-                    {% for review in result %}
-                        <div class="row">
-                            <div class="col">
-                                <span>Name: &nbsp{{ review.user.first_name }}&nbsp{{ review.user.last_name }} </span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <span>Rating: &nbsp{{ review.rating }}</span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <span>Title: &nbsp{{ review.title }}</span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <span>Comment: &nbsp{{ review.comment }}</span>
-                            </div>
-                        </div>
-                        {% if not is_owner and current_user.is_authenticated %}
-                            <div class="row">
-                                <div class="col">
-                                    <div class="row">
-                                        {% if current_user.has_rated_tutor(tutor) %}
-                                            <div class="col">
-                                                <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Edit review</a><br>
-                                            </div>
-                                        {% else %}
-                                            <div class="col">
-                                                <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Write a review<a/><br>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="row">
-                                        {% if prev_url %}
-                                            <div class="col">
-                                                <a href="{{ prev_url }}">Previous page</a>
-                                            </div>
-                                        {% endif %}
-                                        {% if next_url %}
-                                            <div class="col">
-                                                <a href="{{ next_url }}">Next page</a>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}        
+                    {% if result|length > 0 %}
+                      {% for review in result %}
+                          <div class="row">
+                              <div class="col">
+                                  <span>Name: &nbsp{{ review.user.first_name }}&nbsp{{ review.user.last_name }} </span>
+                              </div>
+                          </div>
+                          <div class="row">
+                              <div class="col">
+                                  <span>Rating: &nbsp{{ review.rating }}</span>
+                              </div>
+                          </div>
+                          <div class="row">
+                              <div class="col">
+                                  <span>Title: &nbsp{{ review.title }}</span>
+                              </div>
+                          </div>
+                          <div class="row">
+                              <div class="col">
+                                  <span>Comment: &nbsp{{ review.comment }}</span>
+                              </div>
+                          </div>
+                          {% if not is_owner and current_user.is_authenticated %}
+                              <div class="row">
+                                  <div class="col">
+                                      <div class="row">
+                                          {% if current_user.has_rated_tutor(tutor) %}
+                                              <div class="col">
+                                                  <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Edit review</a><br>
+                                              </div>
+                                          {% else %}
+                                              <div class="col">
+                                                  <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Write a review<a/><br>
+                                              </div>
+                                          {% endif %}
+                                      </div>
+                                      <div class="row">
+                                          {% if prev_url %}
+                                              <div class="col">
+                                                  <a href="{{ prev_url }}">Previous page</a>
+                                              </div>
+                                          {% endif %}
+                                          {% if next_url %}
+                                              <div class="col">
+                                                  <a href="{{ next_url }}">Next page</a>
+                                              </div>
+                                          {% endif %}
+                                      </div>
+                                  </div>
+                              </div>
+                          {% endif %}
+                      {% endfor %}
+                    {% else %}
+                      <h6>No reviews yet.</h6>
+                    {% endif %}
                 </div>
             </div>
         </div>

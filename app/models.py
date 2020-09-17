@@ -135,19 +135,26 @@ class Tutors(db.Model):
         return db.session.query(Categories).join(Tutors.categories).filter(Tutors.user_id==self.user_id).all()
 
     def count_ratings(self):
-        return db.session.query(func.count(Reviews.rating))\
-            .group_by(Reviews.tutor_id)\
-            .filter(Reviews.tutor_id==self.id)\
-            .first()[0]
-            
+        """
+        Returns the total of ratings of the Tutor
+        """
+        result = Reviews.query.filter(Reviews.tutor_id==self.id).all()
+        
+        return 0 if len(result) == 0 else db.session.query(func.count(Reviews.rating))\
+                                            .group_by(Reviews.tutor_id)\
+                                            .filter(Reviews.tutor_id==self.id)\
+                                            .first()[0]
+
     def get_average_ratings(self):
         """
-        Returns an average all ratings of the tutor, rounded to 1 decimal place
+        Returns an average all ratings of the Tutor, rounded to 1 decimal place
         """
-        return round(db.session.query(func.avg(Reviews.rating))\
-            .group_by(Reviews.tutor_id)\
-            .filter(Reviews.tutor_id==self.id)\
-            .first()[0], 1)
+        result = Reviews.query.filter(Reviews.tutor_id==self.id).all()
+        
+        return 0 if len(result) == 0 else round(db.session.query(func.avg(Reviews.rating))\
+                                            .group_by(Reviews.tutor_id)\
+                                            .filter(Reviews.tutor_id==self.id)\
+                                            .first()[0], 1)
 
     def __repr__(self):
         return '<Tutor id {}'.format(self.user_id) + ' , price {}>'.format(self.price)

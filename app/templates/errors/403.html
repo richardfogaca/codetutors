@@ -7,15 +7,13 @@
     <div class="row">
         <div class="col-md-12">
             <div class="error-template">
-                <h1>
-                    Oops!</h1>
-                <h2>
-                    403 Forbidden</h2>
-                <div class="error-details">
+                <h1>Oops!</h1>
+                <h2>403 Forbidden</h2>
+                <div class="error-details mt-3" style="margin-top=35px">
                     Sorry, an error has occurred, forbidden access.
                 </div>
-                <div class="error-actions">
-                    <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg">
+                <div class="error-actions mt-3" style="margin-top=45px">
+                    <a href="{{ url_for('main.home') }}" class="btn btn-primary btn-lg">
                         Return  </a>
                 </div>
             </div>

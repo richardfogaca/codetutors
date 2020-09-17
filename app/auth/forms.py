@@ -23,11 +23,10 @@ class UserRegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 class TutorRegistrationForm(FlaskForm):
-    # about me, price, telephone
     about_me = TextAreaField('About me', validators=[DataRequired(), Length(min=0, max=3000)])
     price = IntegerField('Price per hour', validators=[DataRequired()])
     telephone = StringField('Telephone', validators=[DataRequired(), Length(min=0, max=50)])
-    save = SubmitField('Save')
+    submit = SubmitField('Submit')
 
 class ChangePasswordForm(FlaskForm):
     current_password = PasswordField('Current password', validators=[DataRequired()])

@@ -8,15 +8,13 @@
     <div class="row">
         <div class="col-md-12">
             <div class="error-template">
-                <h1>
-                    Oops!</h1>
-                <h2>
-                    Unexpected Error</h2>
-                <div class="error-details">
+                <h1>Oops!</h1>
+                <h2>Unexpected Error</h2>
+                <div class="error-details" style="margin-top=35px">
                     Sorry, an error has occurred, the administrator has been notified. Sorry for the inconvenience!
                 </div>
-                <div class="error-actions">
-                    <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg">
+                <div class="error-actions" style="margin-top=45px">
+                    <a href="{{ url_for('main.home') }}" class="btn btn-primary btn-lg">
                         Return  </a>
                 </div>
             </div>

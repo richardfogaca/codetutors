@@ -5,41 +5,49 @@
 {% block content %}
 
 <div class="container">
-  {% for review in result %}
+  {% if result|length > 0 %}
     <div class="row">
-      <div class="col">
-        <div class="row">
-          <div class="col-2">
-            Rating:
+      <h4>My reviews</h4>
+    </div>
+    {% for review in result %}
+      <div class="row">
+        <div class="col">
+          <div class="row">
+            <div class="col-2">
+              Rating:
+            </div>
+            <div class="col-10">
+              {{ review.rating }}
+            </div>
           </div>
-          <div class="col-10">
-            {{ review.rating }}
+          <div class="row">
+            <div class="col-2">
+              Title:
+            </div>
+            <div class="col-10">
+              {{ review.title }}
+            </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-2">
-            Title:
+          <div class="row">
+            <div class="col-2">
+              Comment:
+            </div>
+            <div class="col-10">
+              {{ review.comment }}
+            </div>
           </div>
-          <div class="col-10">
-            {{ review.title }}
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-2">
-            Comment:
-          </div>
-          <div class="col-10">
-            {{ review.comment }}
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <a href="{{ url_for('main.add_review', tutor_id=review.tutor.id) }}">Edit review</a><br>
+          <div class="row">
+            <div class="col">
+              <a href="{{ url_for('main.add_review', tutor_id=review.tutor.id) }}">Edit review</a><br>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  {% endfor %}
+    {% endfor %}
+  
+  {% else %}
+    <h5>No reviews yet.</h5>
+  {% endif %}
   <div class="row">
       <div class="col">
         {% if prev_url %}

@@ -28,19 +28,19 @@ def before_request():
         db.session.commit()
 
 @bp.route('/')
-@bp.route('/index')
-def index():
+@bp.route('/home')
+def home():
     """
-    Shows all Tutors on the index page. 
+    Shows all Tutors. 
     """
     page = request.args.get('page', 1, type=int)
     result = db.session.query(Users)\
         .join(Tutors)\
         .paginate(page, current_app.config['TUTORS_PER_PAGE'], False)
-    next_url = url_for('main.index', page=result.next_num) if result.has_next else None
-    prev_url = url_for('main.index', page=result.prev_num) if result.has_prev else None
+    next_url = url_for('main.home', page=result.next_num) if result.has_next else None
+    prev_url = url_for('main.home', page=result.prev_num) if result.has_prev else None
 
-    return render_template('index.html', title='CodeTutors - Home', result=result.items, 
+    return render_template('home.html', title='CodeTutors - Home', result=result.items, 
                         next_url=next_url, prev_url=prev_url)
 
 @bp.route('/profile/<int:tutor_id>', methods=['GET'])
@@ -85,10 +85,10 @@ def following(user_id):
         .filter(user_id==followers_table.c.follower_id)\
         .paginate(page, current_app.config['TUTORS_PER_PAGE'], False)
     
-    next_url = url_for('main.index', page=result.next_num) if result.has_next else None
-    prev_url = url_for('main.index', page=result.prev_num) if result.has_prev else None
+    next_url = url_for('main.home', page=result.next_num) if result.has_next else None
+    prev_url = url_for('main.home', page=result.prev_num) if result.has_prev else None
 
-    return render_template('index.html', title='CodeTutors - Following', result=result.items,
+    return render_template('home.html', title='CodeTutors - Following', result=result.items,
                         next_url=next_url, prev_url=prev_url)
 
 @bp.route('/followers/<int:tutor_id>', methods=['GET'])
@@ -110,12 +110,12 @@ def followers(tutor_id):
         .filter(followers_table.c.followed_id == tutor.user_id)\
         .paginate(page, current_app.config['TUTORS_PER_PAGE'], False)
     
-    next_url = url_for('main.index', page=result.next_num) \
+    next_url = url_for('main.home', page=result.next_num) \
         if result.has_next else None
-    prev_url = url_for('main.index', page=result.prev_num) \
+    prev_url = url_for('main.home', page=result.prev_num) \
         if result.has_prev else None
 
-    return render_template('index.html', title='CodeTutors - Followers', result=result.items,
+    return render_template('home.html', title='CodeTutors - Followers', result=result.items,
                         next_url=next_url, prev_url=prev_url)
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])
@@ -252,7 +252,7 @@ def assign_category():
                 tutor.category.append(choice)
         db.session.commit()
         flash('You have saved your categories')
-        return redirect('index')
+        return redirect('main.home')
     return render_template('assign_category.html', title='CodeTutors - Assign Categories', form=form)
 
 @bp.route('/category/<int:category_id>')
@@ -260,6 +260,12 @@ def category(category_id):
     """
     List all Tutors related to that specific Category
     """
+    try:
+        category_name = Categories.query.get(category_id).name
+    except:
+        flash('Category not registered', 'danger')
+        return render_template('404.html')
+    
     page = request.args.get('page', 1, type=int)
     result = db.session.query(Users)\
         .join(Tutors)\
@@ -267,13 +273,13 @@ def category(category_id):
         .join(Categories, Categories.id == tutor_category.c.category_id)\
         .filter(Categories.id==category_id)\
         .paginate(page, current_app.config['TUTORS_PER_PAGE'], False)
-    next_url = url_for('main.index', page=result.next_num) if result.has_next else None
-    prev_url = url_for('main.index', page=result.prev_num) if result.has_prev else None
+    next_url = url_for('main.home', page=result.next_num) if result.has_next else None
+    prev_url = url_for('main.home', page=result.prev_num) if result.has_prev else None
     
     category_name = Categories.query.get(category_id).name
     title = 'CodeTutors [' + category_name + ']' 
     
-    return render_template('index.html', title=title, result=result.items, 
+    return render_template('home.html', title=title, result=result.items, 
                         next_url=next_url, prev_url=prev_url)
     
 @bp.route('/add_review/<int:tutor_id>', methods=['GET', 'POST'])
@@ -293,7 +299,7 @@ def add_review(tutor_id):
     elif request.method == 'POST' and form.validate_on_submit():
         if user.id == tutor.user_id:
             flash('You can\'t review yourself', 'danger')
-            redirect(url_for('main.index'))
+            redirect(url_for('main.home'))
         title = form.title.data
         rating = form.rating.data
         comment = form.comment.data
@@ -312,7 +318,7 @@ def add_review(tutor_id):
             review.comment = comment
             db.session.commit()
             flash('Your review has been edited', 'success')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.home'))
     
     return render_template('add_review.html', title="CodeTutors - Review your Tutor" ,form=form, tutor=tutor)
 

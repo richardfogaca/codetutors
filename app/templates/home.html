@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block content %}
+    {# {% if current_user.is_authenticated %}
+    <h1>Hi, {{ current_user.first_name }}!</h1>
+    {% endif %} #}
+
+<div class="profiles-container container-fluid">
+
+{% if result|length > 0 %}
+  {% for user in result %}
+    <div class="profile-container container" style="padding: 15px 0px;">
+        <div class="row profile-header">
+                <div class="col-md-2 col-xl-2 photo-col">
+                    {% if user.profile_img %}
+                        <img class="img-avatar" src="{{ url_for('main.display_image', filename=user.profile_img) }}" width="100" height="100" alt="User thumbnail">
+                    {% else %}
+                        <img class="img-avatar" src="{{ user.avatar() }}" alt="User thumbnail">
+                    {% endif %}
+                </div>
+            <div class="col-md-10 col-xl-10 offset-xl-0" style="padding: 0px;">
+                <div class="row-profile-field">
+                    <div class="col">
+                        {% if user.is_tutor() %}
+                            <a href="{{ url_for('main.profile', tutor_id=user.tutor.id) }}"><h3>{{ user.first_name }} {{ user.last_name }}</h3></a>
+                        {% else %}
+                            <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if user.is_tutor() and user.tutor.price %}
+                    <div class="row-profile-field">
+                        <div class="col">
+                            <span class="col-form-label">$ {{ user.tutor.price }}</span>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if user.is_tutor() %}
+                    <div class="row-profile-field">
+                        <div class="col">
+                            <span class="col-form-label">Rating: {{ user.tutor.get_average_ratings() }} ({{ user.tutor.count_ratings() }}) reviews</span>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if user.is_tutor() and user.tutor.about_me %}
+                    <div class="row-profile-field">
+                        <div class="col">
+                            <span class="col-form-label">{{ user.tutor.about_me }}</span>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if user.is_tutor() and user.tutor.get_categories()|length > 0 %}
+                    <div class="row-category-field">
+                        <div class="col">
+                            <span class="col-form-label">Categories:&nbsp</span>
+                            {% for c in user.tutor.get_categories() %}
+                                <a href="{{ url_for('main.category', category_id=c.id) }}" class="btn btn-outline-success btn-sm">{{ c.name }}</a>&nbsp
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+  {% endfor %}
+  <div class="container">
+    <div class="row">
+      <div class="col-2 pt-3" style="padding: 0">
+        
+      </div>
+      <div class="col-2 pt-3" style="padding: 0">
+        {% if prev_url %}
+          <a href="{{ prev_url }}" class="btn btn-outline-primary btn-sm">Previous</a>&nbsp&nbsp
+        {% endif %}
+        {% if next_url %}
+          <a href="{{ next_url }}" class="btn btn-outline-primary btn-sm">Next</a>
+        {% endif %}
+      </div>  
+    </div>
+  </div>
+  {% else %}
+    <div class="container">
+      <h3>No tutors found.</h3>
+    </div>
+{% endif %}
+</div>
+
+{% endblock %}
