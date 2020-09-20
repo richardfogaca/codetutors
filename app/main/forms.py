@@ -10,16 +10,13 @@ photos = UploadSet('photos', IMAGES)
 class UploadImageForm(FlaskForm):
     profile_img = FileField('Profile Image', validators=[FileRequired(), FileAllowed(photos, 'Images only!')])
     upload = SubmitField('Upload')
-    
-class EditProfileForm(FlaskForm):
-    about_me = TextAreaField('About me', validators=[Length(min=0, max=3000)])
-    save = SubmitField('Save')
 
 class MultiCheckboxField(SelectMultipleField):
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
-
-class AddCategoryForm(FlaskForm):
+    
+class EditProfileForm(FlaskForm):
+    about_me = TextAreaField('About me', validators=[DataRequired(), Length(min=0, max=3000)])
     category = MultiCheckboxField('Programming Languages', coerce=int)
     save = SubmitField('Save')
 

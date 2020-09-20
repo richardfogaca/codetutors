@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, current_user, login_required
 from app.auth import bp
 from app.auth.forms import LoginForm, UserRegistrationForm, ResetPasswordForm, ChangePasswordForm, ResetPasswordRequestForm, TutorRegistrationForm
-from app.models import Users, Tutors
+from app.models import Users, Tutors, Categories
 from app import db
 from werkzeug.urls import url_parse
 from app.auth.email import send_password_reset_email
@@ -15,7 +15,7 @@ def login():
     if form.validate_on_submit():
         user = Users.query.filter_by(email=form.email.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid email or password')
+            flash('Invalid email or password', 'danger')
             return redirect(url_for('auth.login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next') # next is the page the user tried to access before login
@@ -41,7 +41,7 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
+        flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', title='CodeTutors - Register', form=form)
 
@@ -50,9 +50,11 @@ def register():
 def register_tutor():
     # Validate if tutor is already registered
     user = Users.query.get(current_user.id)
-    if user.is_tutor:
+
+    if user.is_tutor():
         return redirect(url_for('main.profile', tutor_id=user.tutor.id))
     form = TutorRegistrationForm()
+    form.category.choices = [(c.id, c.name) for c in Categories.query.order_by('name')]
     if form.validate_on_submit():
         about_me = form.about_me.data
         price = form.price.data
@@ -61,24 +63,34 @@ def register_tutor():
         user.tutor = tutor
         db.session.add(tutor)
         db.session.commit()
-        flash('Congratulations, you are now a registered tutor!')
+        
+        categories = Categories.get_all()
+        categories_total = len(categories)
+        # looping through the choices, we check the choice ID against what was passed in the form
+        for choice in categories:
+            # when there's a match, append the object
+            if choice.id in form.category.data:
+                tutor.categories.append(choice)
+        db.session.commit()
+        flash('Congratulations, you are now a registered tutor!', 'success')
         return redirect(url_for('main.profile', tutor_id=tutor.id))
-    return render_template('auth/register_tutor.html', title='CodeTutors - Tutor Registration', form=form) 
+    return render_template('auth/register_tutor.html', title='CodeTutors - Tutor Registration', 
+                           form=form, categories_total=categories_total)
 
 @bp.route('/change_password', methods=['GET', 'POST'])
 @login_required
 def change_password():
     user = Users.query.get(current_user.id)
-    password_form = ChangePasswordForm()
-    if password_form.validate_on_submit():
-        if user.check_password(password_form.current_password.data):
-            user.set_password(password_form.new_password.data)
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if user.check_password(form.current_password.data):
+            user.set_password(form.new_password.data)
             db.session.commit()
-            flash('Sucess! You have updated your password!')
+            flash('Sucess! You have updated your password!', 'success')
         else:
-            flash('Please review your password and try again')
+            flash('Please review your password and try again', 'warning')
         return redirect(url_for('main.dashboard'))
-    return render_template('auth/change_password.html', title='CodeTutors - Reset Password' ,user=user, password_form=password_form)
+    return render_template('auth/change_password.html', title='CodeTutors - Reset Password' ,user=user, form=form)
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
@@ -89,7 +101,7 @@ def reset_password_request():
         user = Users.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        flash('Check your email for the instructions to reset your password')
+        flash('Check your email for the instructions to reset your password', 'warning')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password_request.html',
                            title='CodeTutors - Reset Password', form=form)
@@ -105,6 +117,6 @@ def reset_password(token):
     if form.validate_on_submit():
         user.set_password(form.password.data)
         db.session.commit()
-        flash('Your password has been reset.')
+        flash('Your password has been reset.', 'success')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', title='CodeTutors - Reset Password', form=form)

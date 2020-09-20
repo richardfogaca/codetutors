@@ -134,6 +134,14 @@ class Tutors(db.Model):
         """
         return db.session.query(Categories).join(Tutors.categories).filter(Tutors.user_id==self.user_id).all()
 
+    def get_categories_id(self):
+        # Will return a list containing just the IDs of the Categories the Tutor has assigned
+        result = db.session.query(Categories.id).join(Tutors.categories).filter(Tutors.user_id==self.user_id).all()
+        return [value for value, in result]
+    
+    def delete_categories(self):
+        return db.session.query(Tutors.categories).filter(Tutors.user_id==self.user_id).delete()
+    
     def count_ratings(self):
         """
         Returns the total of ratings of the Tutor

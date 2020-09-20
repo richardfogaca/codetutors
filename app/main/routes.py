@@ -10,7 +10,7 @@ from app import db
 from app.main.forms import MessageForm
 from app.models import *
 from app.utils import expand2square
-from .forms import EditProfileForm, UploadImageForm, AddCategoryForm, AddReviewForm
+from .forms import EditProfileForm, UploadImageForm, AddReviewForm
 from PIL import Image
 from app.main import bp
 import logging, os, time, hashlib, pathlib
@@ -28,6 +28,11 @@ def before_request():
         db.session.commit()
 
 @bp.route('/')
+def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    return render_template('index.html')
+
 @bp.route('/home')
 def home():
     """
@@ -127,39 +132,35 @@ def edit_profile():
     """
     id = current_user.id
     user = Users.query.get(id)
-
     tutor = Tutors.query.filter_by(user_id=id).first()
     if tutor is None:
         return render_template('403.html')
 
-    profile_form = EditProfileForm()
-    image_form = UploadImageForm()
-    if request.method == 'POST':
-        if image_form.validate_on_submit():
-            # saving the profile image
-            filename = image_form.profile_img.data
-            str_name = 'admin' + str(int(time.time()))
-            name = hashlib.md5(str_name.encode("utf-8")).hexdigest()[:15]
-            file_extension = pathlib.Path(filename.filename).suffix
-            current_app.photos.save(filename, name=name + '.')
-
-            # resizing the thumbnail image
-            file_url = current_app.photos.path(name) + file_extension
-            image = Image.open(file_url)
-            image = expand2square(image, (0, 0, 0)).resize((150, 150), Image.LANCZOS)
-            image.save(file_url, quality=95)
-
-            # saving the filename into users.profile_img
-            user.profile_img = name + file_extension
-        if profile_form.validate_on_submit() and profile_form.save.data and profile_form.about_me.data:
-            current_user.about_me = profile_form.about_me.data
+    form = EditProfileForm()
+    # showing all categories as choices
+    form.category.choices = [(c.id, c.name) for c in Categories.query.order_by('name')]
+    if form.validate_on_submit():
+        current_user.about_me = form.about_me.data
+        
+        # Clean all categories from the Tutor
+        tutor.categories = []
+        db.session.commit()
+        
+        # Append only the selected ones
+        categories = Categories.get_all()
+        for choice in categories:
+            # when there's a match, append the object
+            if choice.id in form.category.data:
+                tutor.categories.append(choice)
         db.session.commit()
         flash('Your changes have been saved.', 'success')
         return redirect(url_for('main.profile', tutor_id=tutor.id))
     elif request.method == 'GET':
-        profile_form.about_me.data = tutor.about_me
+        form.about_me.data = tutor.about_me
+        # pre selecting the ones the user had already assigned
+        form.category.data = tutor.get_categories_id()
     return render_template('edit_profile.html', title='CodeTutors - Edit profile',
-                           user=user, profile_form=profile_form, image_form=image_form)
+                           user=user, form=form)
 
 @bp.route('/dashboard', methods=['GET', 'POST'])
 @login_required
@@ -235,26 +236,6 @@ def get_rating(tutor_id):
     except NoResultFound:
         return jsonify(error="Tutor not found", code=404)
 
-@bp.route('/assign_category', methods=['GET', 'POST'])
-@login_required
-def assign_category():
-    user = Users.query.get(current_user.id)
-    tutor = Tutors.query.filter_by(user_id=user.id).first()
-
-    form = AddCategoryForm()
-    form.category.choices = [(c.id, c.name) for c in Categories.query.order_by('name')]
-    if request.method == 'POST' and form.validate_on_submit():
-        categories = Categories.get_all()
-        # looping through the choices, we check the choice ID against what was passed in the form
-        for choice in categories:
-            # when there's a match, append the object
-            if choice.id in form.category.data:
-                tutor.category.append(choice)
-        db.session.commit()
-        flash('You have saved your categories')
-        return redirect('main.home')
-    return render_template('assign_category.html', title='CodeTutors - Assign Categories', form=form)
-
 @bp.route('/category/<int:category_id>')
 def category(category_id):
     """
@@ -304,7 +285,7 @@ def add_review(tutor_id):
         rating = form.rating.data
         comment = form.comment.data
         if rating < 1 or rating > 5:
-            flash("Your rating must be from 1 to 5")
+            flash("Your rating must be from 1 to 5", 'warning')
             return redirect(url_for('main.add_review'))
         comment = form.comment.data
         if review is None:
