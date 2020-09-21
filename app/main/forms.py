@@ -16,7 +16,7 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = widgets.CheckboxInput()
     
 class EditProfileForm(FlaskForm):
-    about_me = TextAreaField('About me', validators=[DataRequired(), Length(min=0, max=3000)])
+    about_me = TextAreaField('About me', render_kw={"rows": 5, "cols": 60}, validators=[DataRequired(), Length(min=0, max=3000)])
     category = MultiCheckboxField('Programming Languages', coerce=int)
     save = SubmitField('Save')
 

@@ -7,7 +7,7 @@
     <h1>Hi, {{ current_user.first_name }}!</h1>
     {% endif %} #}
 
-<div class="profiles-container container-fluid">
+<div class="profiles-container container-fluid" style="padding-top: 23px">
 
 {% if result|length > 0 %}
   {% for user in result %}
@@ -40,7 +40,11 @@
                 {% if user.is_tutor() %}
                     <div class="row-profile-field">
                         <div class="col">
-                            <span class="col-form-label">Rating: {{ user.tutor.get_average_ratings() }} ({{ user.tutor.count_ratings() }}) reviews</span>
+                            {% if user.tutor.count_ratings() > 0 %}
+                              <span class="col-form-label">Rating: {{ user.tutor.get_average_ratings() }} ({{ user.tutor.count_ratings() }}) reviews</span>
+                            {% else %}
+                              <span class="col-form-label">No reviews yet</span>
+                            {% endif %}
                         </div>
                     </div>
                 {% endif %}
@@ -81,7 +85,7 @@
     </div>
   </div>
   {% else %}
-    <div class="container">
+    <div class="container pt-4">
       <h3>No tutors found.</h3>
     </div>
 {% endif %}

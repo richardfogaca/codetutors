@@ -23,6 +23,6 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     SECURITY_EMAIL_SENDER = 'rfncoding@gmail.com'
     ADMINS = ['rfncoding@gmail.com']
-    TUTORS_PER_PAGE = 2
-    REVIEWS_PER_PAGE = 1
-    MESSAGES_PER_PAGE = 3
+    TUTORS_PER_PAGE = 5
+    REVIEWS_PER_PAGE = 3
+    MESSAGES_PER_PAGE = 10

@@ -61,7 +61,7 @@ ul, li {
 
 @media (max-width: 575px) {
 	body {
-		padding-top: 70px;
+		padding-top: 50px;
 	}
 	.message-content-col {
 		width: 250px;

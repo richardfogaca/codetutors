@@ -45,7 +45,7 @@
 
 <input id="user-id" name="user-id" type="hidden" value="{{current_user.get_id()}}">
 <input id="tutor-id" name="tutor-id" type="hidden" value="{{tutor.id}}">
-<div class="container">
+<div class="container" style="padding-top: 23px">
     <div class="row profile-header">
         <div class="col-md-3 col-xl-2 photo-col">
             <div class="row">
@@ -141,7 +141,9 @@
                 <div class="col">
                     <h3 class="pb-3">Reviews</h3>
                     {% if result|length > 0 %}
-                      {% for review in result %}
+                      <div class="messages-container">
+                        {% for review in result %}
+                        <div class="message-group" style="margin-bottom:20px">
                           <div class="row">
                               <div class="col">
                                   <span>Name: &nbsp{{ review.user.first_name }}&nbsp{{ review.user.last_name }} </span>
@@ -166,17 +168,6 @@
                               <div class="row">
                                   <div class="col">
                                       <div class="row">
-                                          {% if current_user.has_rated_tutor(tutor) %}
-                                              <div class="col">
-                                                  <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Edit review</a><br>
-                                              </div>
-                                          {% else %}
-                                              <div class="col">
-                                                  <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Write a review<a/><br>
-                                              </div>
-                                          {% endif %}
-                                      </div>
-                                      <div class="row">
                                           {% if prev_url %}
                                               <div class="col">
                                                   <a href="{{ prev_url }}">Previous page</a>
@@ -191,9 +182,29 @@
                                   </div>
                               </div>
                           {% endif %}
+                        </div>
                       {% endfor %}
+
+                      <div class="row">
+                          {% if current_user.has_rated_tutor(tutor) %}
+                              <div class="col">
+                                  <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Edit review</a><br>
+                              </div>
+                          {% elif not is_owner %}
+                              <div class="col">
+                                  <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Write a review<a/><br>
+                              </div>
+                          {% endif %}
+                      </div>
+
+                    </div>
                     {% else %}
-                      <h6>No reviews yet.</h6>
+                      <div class="container" style="padding: 0">
+                        <h6>No reviews yet.</h6>
+                        <div class="col" style="padding: 0; margin-top: 20px">
+                            <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Write a review!<a/><br>
+                        </div>
+                      </div>
                     {% endif %}
                 </div>
             </div>
