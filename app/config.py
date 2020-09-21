@@ -12,7 +12,6 @@ class Config(object):
     # SQLALCHEMY_ECHO = True
     # SQLALCHEMY_DATABASE_URI = 'postgresql://%(user)s:\
     #     %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
-    SQLALCHEMY_DATABASE_URI = 'postgres://owxmxppljgtpit:37ad1ded63e1dace724a8957f69128b489955224429ed65bd11dda71d78f4825@ec2-3-228-114-251.compute-1.amazonaws.com:5432/d2e7afg2kmn26h'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     MAX_CONTENT_LENGTH = 4 * 1024 * 1024  # 4MB file max-limit.
