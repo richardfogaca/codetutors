@@ -26,5 +26,5 @@ class Config(object):
     SECURITY_EMAIL_SENDER = 'rfncoding@gmail.com'
     ADMINS = ['rfncoding@gmail.com']
     TUTORS_PER_PAGE = 5
-    REVIEWS_PER_PAGE = 3
+    REVIEWS_PER_PAGE = 4
     MESSAGES_PER_PAGE = 10
