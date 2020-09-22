@@ -186,7 +186,7 @@
                       {% endfor %}
 
                       <div class="row">
-                          {% if current_user.has_rated_tutor(tutor) %}
+                          {% if user.has_rated_tutor(tutor) %}
                               <div class="col">
                                   <a href="{{ url_for('main.add_review', tutor_id=tutor.id) }}">Edit review</a><br>
                               </div>
