@@ -24,7 +24,6 @@ def create_app(config_class=Config):
                 static_folder='../static',
                 template_folder='./templates')
     app.config.from_object(config_class)
-    print(os.environ['SQLALCHEMY_DATABASE_URI'])
     
     csrf.init_app(app)
     db.init_app(app)
