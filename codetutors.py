@@ -3,8 +3,7 @@ from app.models import Users, Categories, Tutors, Reviews, Messages, Notificatio
 from sqlalchemy import func
 from app.config import Config
 
-config = Config()
-app = create_app(config)
+app = create_app()
 
 # When running the 'flask shell' command, it will automatically import everything below
 @app.shell_context_processor
