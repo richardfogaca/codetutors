@@ -197,6 +197,6 @@ ul, li {
 .user-photo-container {
 	display: flex;
 	align-items: center;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	max-width: 200px;
 }
