@@ -12,7 +12,7 @@ class Config(object):
     # SQLALCHEMY_ECHO = True
     # SQLALCHEMY_DATABASE_URI = 'postgresql://%(user)s:\
     #     %(pw)s@%(host)s:%(port)s/%(db)s' % POSTGRES
-    SQL_ALCHEMY_DATABASE_URI = os.environ.get('SQL_ALCHEMY_DATABASE_URI')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     MAX_CONTENT_LENGTH = 4 * 1024 * 1024  # 4MB file max-limit.
