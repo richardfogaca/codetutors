@@ -55,6 +55,10 @@ def register_tutor():
         return redirect(url_for('main.profile', tutor_id=user.tutor.id))
     form = TutorRegistrationForm()
     form.category.choices = [(c.id, c.name) for c in Categories.query.order_by('name')]
+    
+    categories = Categories.get_all()
+    categories_total = len(categories)
+    
     if form.validate_on_submit():
         about_me = form.about_me.data
         price = form.price.data
@@ -64,8 +68,6 @@ def register_tutor():
         db.session.add(tutor)
         db.session.commit()
         
-        categories = Categories.get_all()
-        categories_total = len(categories)
         # looping through the choices, we check the choice ID against what was passed in the form
         for choice in categories:
             # when there's a match, append the object

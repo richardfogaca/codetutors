@@ -35,7 +35,6 @@ def create_app(config_class=Config):
     # app._static_folder = os.path.abspath("static/")
     app.config['UPLOADED_PHOTOS_DEST'] = os.path.join(os.path.dirname(app.instance_path), 'static/uploads')
     
-
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
 
